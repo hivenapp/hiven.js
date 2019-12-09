@@ -1,14 +1,18 @@
 {
   "name": "@hivenapp/hiven.js",
   "version": "1.0.0",
-  "description": "",
+  "description": "Hiven.js - Javascript bot library for Hiven",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "Dustin Rouillard <contact@dustinrouillard.dev> (https://dustinrouillard.dev)",
-  "license": "ISC",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hivenapp/hiven.js.git"
+  },
   "devDependencies": {
     "eslint": "^6.6.0"
   },
