@@ -1,6 +1,11 @@
+/**
+ * A bot that will show you how to send, update and delete messages
+ */
+
 // Modules
 const Hiven = require('hiven.js');
 
+// Remember to put { clientType: 'user' } in this function call to enable user accounts
 const Client = new Hiven.Client();
 
 // This event is emitted when the client successfully authenticates
@@ -27,5 +32,5 @@ Client.on('MESSAGE_CREATE', async msg => {
     }
 });
 
-// Connect to hiven using a token
-Client.connect(process.env.HIVEN_TOKEN);
+// Connect to 'hiven using a token
+Client.connect('token_here');

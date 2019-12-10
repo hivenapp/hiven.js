@@ -1,6 +1,11 @@
+/**
+ * A bot that will post in a room when a user joins
+ */
+
 // Modules
 const Hiven = require('hiven.js');
 
+// Remember to put { clientType: 'user' } in this function call to enable user accounts
 const Client = new Hiven.Client();
 
 // This event is emitted when the client successfully authenticates
@@ -20,4 +25,4 @@ Client.on('HOUSE_MEMBER_JOIN', async member => {
 });
 
 // Connect to hiven using a token
-Client.connect(process.env.HIVEN_TOKEN);
+Client.connect('token_here');

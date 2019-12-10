@@ -1,6 +1,12 @@
+
+/**
+ * A bot that responds Pong when you send ping.
+ */
+
 // Modules
 const Hiven = require('hiven.js');
 
+// Remember to put { clientType: 'user' } in this function call to enable user accounts
 const Client = new Hiven.Client();
 
 // This event is emitted when the client successfully authenticates
@@ -16,4 +22,4 @@ Client.on('MESSAGE_CREATE', msg => {
 });
 
 // Connect to hiven using a token
-Client.connect(process.env.HIVEN_TOKEN);
+Client.connect('token_here');
