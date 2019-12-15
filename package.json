@@ -1,6 +1,6 @@
 {
-  "name": "hiven.js",
-  "version": "1.1.0",
+  "name": "@hivenapp/hiven.js",
+  "version": "1.1.1",
   "description": "Hiven.js - Javascript bot library for Hiven",
   "main": "index.js",
   "scripts": {
