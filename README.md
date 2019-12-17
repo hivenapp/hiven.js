@@ -14,9 +14,21 @@ This library is extremely unfinished currently it only handles incoming events f
 
 This was originally created to be similar to discord.js and will probably still inherit some of it's features in the future.
 
-IMPORTANT: In order to use this library with a user account you need to instantiate your client with these settings.
+## Install instructions
+
+Installation via NPM
+
+`npm install hiven`
+
+Installation via Yarn
+
+`yarn install hiven`
+
+---
+
+**IMPORTANT: In order to use this library with a user account you need to instantiate your client with these settings.**
 
 ```js
-const Hiven = require('hiven.js');
+const Hiven = require('hiven');
 const Client = new Hiven.Client({ clientType: 'user' });
 ```
