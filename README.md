@@ -31,6 +31,6 @@ Installation via Yarn
 **IMPORTANT: In order to use this library with a user account you need to instantiate your client with these settings.**
 
 ```js
-const Hiven = require('hiven.js');
+const Hiven = require('hiven');
 const Client = new Hiven.Client({ clientType: 'user' });
 ```
