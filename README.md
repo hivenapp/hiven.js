@@ -10,6 +10,8 @@
   <a href="https://github.com/hivenapp/hiven.js"><img src="https://img.shields.io/github/repo-size/hivenapp/hiven.js.svg" alt="GitHub Repo Size"></a>
 </p>
 
+## This is going to be converted to typescript and brought up to date with the current Hiven API soon.
+
 Client library for Hiven, used to make chat bots and interact with the API.
 
 This library is extremely unfinished currently it only handles incoming events from the gateway.
