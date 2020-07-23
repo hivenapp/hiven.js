@@ -84,6 +84,9 @@ export default class Client extends EventEmitter {
         case "INIT_STATE":
           this.user = d.user;
           this.users.set(d.user.id, d.user);
+          d.private_rooms.forEach(room => {
+            this.rooms.collect(room.id, room)
+         })
           this.emit("ready");
           break;
         case "ROOM_CREATE":
