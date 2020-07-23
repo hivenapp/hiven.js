@@ -3,11 +3,11 @@ const Websocket = require('ws');
 const EventEmitter = require('events');
 
 // Static variables
-const SWARM_URL = 'wss://swarm-dev.hiven.io/socket';
+const SWARM_URL = 'wss://swarm-dev.hiven.io/socket?encoding=json&compression=text_json';
 const ENCODING = 'json';
 
 // WS Class
-class WS extends EventEmitter {
+export default class WS extends EventEmitter {
   constructor(settings = { reconnectInt: 5000, reconnectCount: 5 }, cache = {}) {
     super();
 
@@ -16,7 +16,7 @@ class WS extends EventEmitter {
     this.cache = cache;
   }
 
-  async sendOp(op, data) {
+  async sendOp(op, data?) {
     if (this.ws.readyState != Websocket.OPEN) return false;
     if (op == 2) { this.cache.token = data.token; }
     if (data) return this.ws.send(JSON.stringify({ op, d: data }));
@@ -40,6 +40,7 @@ class WS extends EventEmitter {
       this.ws = new Websocket(`${SWARM_URL}?encoding=${ENCODING}`);
   
       this.ws.on('open', async () => {
+        console.log("Connected!")
         this.reconnectionCount = 0;
         
         return resolve(true);
@@ -81,5 +82,3 @@ class WS extends EventEmitter {
     return true;
   }
 }
-
-module.exports = WS;

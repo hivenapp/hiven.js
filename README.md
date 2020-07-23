@@ -34,5 +34,15 @@ Installation via Yarn
 
 ```js
 const Hiven = require('hiven');
-const Client = new Hiven.Client({ clientType: 'user' });
+const client = new Hiven.Client({ clientType: 'user' });
+
+client.connect("your token")
+
+client.on('ready', () => {
+  console.log("Connected to Hiven Swarm!")
+})
+
+client.on('MESSAGE_CREATE', (msg) => {
+  console.log(`Received message: ${msg.content} from ${msg.author.username}`)
+})
 ```
