@@ -9,4 +9,5 @@ export default interface Message {
   room: Room;
   house: House;
   author: User;
+  edit?: (content: string) => void;
 }

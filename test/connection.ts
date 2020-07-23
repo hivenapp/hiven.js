@@ -11,5 +11,6 @@ client.on('ready', () => {
 })
 
 client.on('MESSAGE_CREATE', (msg) => {
+  console.log(msg.edit("kkss"))
   console.log(`Received message: ${msg.content} from ${msg.author.username}`)
 })
