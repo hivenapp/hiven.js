@@ -65,7 +65,6 @@ export class Client extends EventEmitter {
     // Set the token in the instance
     if (this.options.type === 'bot') this.token = `Bot ${token}`;
     else this.token = token;
-    console.log(token, this.options.type, this.token);
 
     this.rest.init(this);
 
@@ -73,7 +72,7 @@ export class Client extends EventEmitter {
     await this.ws.init();
 
     // Auth with the socket
-    await this.ws.sendOp(2, { token: token });
+    await this.ws.sendOp(2, { token: this.token });
 
     this.ws.on('data', (body) => {
       const { e, d } = body;
@@ -97,7 +96,7 @@ export class Client extends EventEmitter {
             });
           });
 
-          this.emit('ready', d);
+          this.emit('init', d);
           return this.emit(e, d);
         }
         case 'ROOM_CREATE': {
