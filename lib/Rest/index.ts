@@ -48,7 +48,7 @@ export default class Rest {
 
       let res = await fetch(url, {
         method,
-        body: data,
+        body: method != 'get' ? data : null,
         headers: { ...headers, ...this.API_HEADERS }
       });
 

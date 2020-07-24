@@ -3,16 +3,16 @@ export class BaseCollection extends Map {
     super();
   }
 
-  Get<T = any>(id: string): T {
+  get<T = any>(id: string): T {
     return super.get(id);
   }
 
-  Set<T = any>(id: string, value: any): T {
+  set<T = any>(id: string, value: any): T {
     super.set(id, value);
     return super.get(id);
   }
 
-  Resolve<T = any>(id: string): T {
+  resolve<T = any>(id: string): T {
     return super.get(id);
   }
 }

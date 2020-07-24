@@ -21,10 +21,10 @@ export class Room extends BaseCollection implements BaseRoom {
    * @param {string} key Object key
    * @param {value} value Object value
    */
-  public async Collect(key: string | number, value: any) {
+  public async collect(key: string, value: any) {
     if (typeof value == 'object') {
-      value.Send = this.Send;
-      value.Delete = this.Delete;
+      value.send = this.send;
+      value.delete = this.delete;
     }
     super.set(key, value);
     return super.get(key);
@@ -34,7 +34,7 @@ export class Room extends BaseCollection implements BaseRoom {
    * Send function to send message to room
    * @param {string} content Message contents
    */
-  async Send(content: string) {
+  async send(content: string) {
     let sendMessage = await rest.post(`/rooms/${this.id}/messages`, {
       data: { content }
     });
@@ -47,12 +47,12 @@ export class Room extends BaseCollection implements BaseRoom {
       author: this.client?.users.get(sendMessage.author_id)
     };
 
-    let collect = await this.client?.messages.Collect(message.id, message);
+    let collect = await this.client?.messages.collect(message.id, message);
 
     return collect;
   }
 
-  Create = async (name: string) => {
+  create = async (name: string) => {
     if (!this.id) throw 'cannot_call_without_house';
     if (!name) throw 'missing_name';
 
@@ -62,7 +62,7 @@ export class Room extends BaseCollection implements BaseRoom {
     });
     if (!createRoom) throw 'failed_to_create_room';
 
-    this.house?.rooms?.Collect(createRoom.id, {
+    this.house?.rooms?.collect(createRoom.id, {
       id: createRoom.id,
       name: createRoom.name,
       house: this,
@@ -70,7 +70,7 @@ export class Room extends BaseCollection implements BaseRoom {
       type: createRoom.type
     });
 
-    return await this.client.rooms.Collect(createRoom.id, {
+    return await this.client.rooms.collect(createRoom.id, {
       id: createRoom.id,
       name: createRoom.name,
       house: this,
@@ -79,7 +79,7 @@ export class Room extends BaseCollection implements BaseRoom {
     });
   };
 
-  async Delete() {
+  async destroy() {
     let deleteRoom = await rest.delete(`/houses/${this.id}/rooms/${this.id}`);
     return deleteRoom;
   }

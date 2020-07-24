@@ -61,7 +61,7 @@ export class Client extends EventEmitter {
     this.messages = new MessageStore(this);
   }
 
-  async Connect(token: string) {
+  async connect(token: string) {
     // Set the token in the instance
     if (this.options.type === 'bot') this.token = `Bot ${token}`;
     else this.token = token;
@@ -87,9 +87,9 @@ export class Client extends EventEmitter {
       switch (e) {
         case 'INIT_STATE': {
           this.user = d.user;
-          this.users.Set(d.user.id, d.user);
+          this.users.collect(d.user.id, d.user);
           d.private_rooms.forEach((room: APIBaseRoom) => {
-            this.rooms.Collect(room.id, {
+            this.rooms.collect(room.id, {
               id: room.id,
               name: room.name,
               house: room.house_id
@@ -100,21 +100,21 @@ export class Client extends EventEmitter {
           return this.emit(e, d);
         }
         case 'ROOM_CREATE': {
-          let createRoomHouse: House = this.houses.Resolve<House>(d.house_id);
+          let createRoomHouse: House = this.houses.resolve<House>(d.house_id);
 
-          createRoomHouse.rooms?.Collect(d.id, {
+          createRoomHouse.rooms?.collect(d.id, {
             id: d.id,
             name: d.name,
             house: createRoomHouse
           });
 
-          this.rooms.Collect(d.id, {
+          this.rooms.collect(d.id, {
             id: d.id,
             name: d.name,
             house: createRoomHouse
           });
 
-          this.houses.Collect(createRoomHouse?.id || '', createRoomHouse);
+          this.houses.collect(createRoomHouse?.id || '', createRoomHouse);
           this.emit('room_create', d);
           return this.emit(e, d);
         }
@@ -123,25 +123,25 @@ export class Client extends EventEmitter {
           return this.emit(e, d);
         }
         case 'ROOM_DELETE': {
-          let rooms: Room | undefined = this.houses.Get<House>(d.house_id).rooms?.Get<Room>(d.id);
+          let rooms: Room | undefined = this.houses.resolve<House>(d.house_id).rooms?.resolve<Room>(d.id);
 
-          this.houses.Get<House>(d.house_id).rooms = rooms;
+          this.houses.resolve<House>(d.house_id).rooms = rooms;
           this.rooms.delete(d.id);
 
           this.emit('room_delete', d);
           return this.emit(e, d);
         }
         case 'MESSAGE_CREATE': {
-          let house = this.houses.Resolve<HouseStore>(d.house_id);
+          let house = this.houses.resolve<HouseStore>(d.house_id);
 
-          const collect_message = this.messages.Collect(d.id, {
+          const collect_message = this.messages.collect(d.id, {
             id: d.id,
             content: d.content,
             timestamp: new Date(d.timestamp),
-            room: this.rooms.Resolve<Room>(d.room_id),
-            house: this.houses.Resolve<House>(d.house_id),
-            author: this.users.Resolve<User>(d.author_id),
-            member: house?.members?.Resolve<Member>(d.author_id)
+            room: this.rooms.resolve<Room>(d.room_id),
+            house: this.houses.resolve<House>(d.house_id),
+            author: this.users.resolve<User>(d.author_id),
+            member: house?.members?.resolve<Member>(d.author_id)
           });
 
           this.emit('message', collect_message);
@@ -152,7 +152,7 @@ export class Client extends EventEmitter {
           return this.emit(e, d);
         }
         case 'MESSAGE_DELETE': {
-          this.messages.Delete(d.id);
+          this.messages.delete(d.id);
           this.emit('message_delete', d);
           return this.emit(e, d);
         }
@@ -162,9 +162,9 @@ export class Client extends EventEmitter {
         }
         case 'HOUSE_JOIN': {
           let joinHouse = d;
-          let house = this.houses.Resolve<HouseStore>(joinHouse.id);
+          let house = this.houses.resolve<HouseStore>(joinHouse.id);
           if (!house)
-            house = this.houses.Collect<House>(joinHouse.id, {
+            house = this.houses.collect<House>(joinHouse.id, {
               id: joinHouse.id,
               name: joinHouse.name,
               members: new MemberStore(client),
@@ -185,27 +185,27 @@ export class Client extends EventEmitter {
               last_message_id: room.last_message_id,
               emoji: room.emoji
             };
-            this.rooms.Collect(room.id, finalRoom);
-            house.rooms?.Collect(room.id, finalRoom);
+            this.rooms.collect(room.id, finalRoom);
+            house.rooms?.collect(room.id, finalRoom);
           });
 
           d.members.forEach(async (member: APIMember) => {
-            house.members?.Collect(member.id, {
+            house.members?.collect(member.id, {
               id: member.id,
               roles: member.roles,
               last_message_id: member.last_message_id,
               house,
-              user: this.users.Resolve(member.id)
+              user: this.users.resolve(member.id)
             });
-            this.users.Collect(member.id, member.user);
-            this.members.Collect(member.id, member.user);
+            this.users.collect(member.id, member.user);
+            this.members.collect(member.id, member.user);
           });
 
           // Cache houses
-          this.houses.Collect(house.id || '', {
+          this.houses.collect(house.id || '', {
             id: house.id,
             name: house.name,
-            owner: this.users.Resolve(house.owner_id || ''),
+            owner: this.users.resolve(house.owner_id || ''),
             icon: house.icon,
             members: house.members,
             rooms: house.rooms,
@@ -217,16 +217,16 @@ export class Client extends EventEmitter {
           return this.emit(e, house);
         }
         case 'HOUSE_MEMBER_JOIN': {
-          let houseJoin: House = this.houses.Get<House>(d.house_id);
+          let houseJoin: House = this.houses.resolve<House>(d.house_id);
           let member: Member = d;
 
-          houseJoin.members?.Collect(member.id, {
+          houseJoin.members?.collect(member.id, {
             id: member.id,
             house: houseJoin
           });
 
-          this.houses.Collect(houseJoin.id || '', houseJoin);
-          this.users.Set(d.user_id, d.user);
+          this.houses.collect(houseJoin.id || '', houseJoin);
+          this.users.collect(d.user_id, d.user);
 
           this.emit('house_member_join', d);
           return this.emit(e, member);

@@ -14,16 +14,16 @@ export class Member extends BaseCollection {
     this.client = client;
   }
 
-  Send = () => {
+  send = () => {
     return false;
   };
 
-  Collect = <T = any>(k: any, v: any): T => {
+  collect = <T = any>(k: any, v: any): T => {
     super.set(k, v);
     return super.get(k);
   };
 
-  Delete = () => {
+  destroy = () => {
     return;
   };
 }

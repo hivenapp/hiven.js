@@ -12,15 +12,15 @@ export class User extends BaseCollection {
     this.client = client;
   }
 
-  Collect = (key: string | number, value: any) => {
+  collect = (key: string, value: any) => {
     return super.set(key, value);
   };
 
-  Delete = (key: string | number) => {
+  destroy = (key: string | number) => {
     return super.delete(key);
   };
 
-  async Send(content: string, id: string) {
+  async send(content: string, id: string) {
     let sendMessage = await rest.post<APIMessage>(`/rooms/${id}/messages`, {
       data: { content }
     });
@@ -29,12 +29,12 @@ export class User extends BaseCollection {
       id: sendMessage.id,
       content: sendMessage.content,
       timestamp: new Date(sendMessage.timestamp),
-      room: this.client?.rooms.Get(sendMessage.room_id),
-      house: this.client?.houses.Get(sendMessage.house_id),
-      author: this.client?.users.Get(sendMessage.author_id)
+      room: this.client?.rooms.resolve(sendMessage.room_id),
+      house: this.client?.houses.resolve(sendMessage.house_id),
+      author: this.client?.users.resolve(sendMessage.author_id)
     };
 
-    let collect = await this.client?.messages.Collect(message.id, message);
+    let collect = await this.client?.messages.collect(message.id, message);
 
     return collect;
   }

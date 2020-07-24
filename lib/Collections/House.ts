@@ -23,31 +23,31 @@ export class House extends BaseCollection {
     this.client = client;
   }
 
-  Collect<T = any>(key: string, value: any): T {
+  collect<T = any>(key: string, value: any): T {
     if (typeof value == 'object') {
-      value.CreateInvite = this.CreateInvite;
-      value.Leave = this.Leave;
-      value.CreateRoom = this.CreateRoom;
+      value.createInvite = this.createInvite;
+      value.leave = this.leave;
+      value.createRoom = this.createRoom;
     }
     super.set(key, value);
     return super.get(key);
   }
 
-  async Create(name: string) {
+  async create(name: string) {
     let createHouse = await rest.post('/houses', {
       data: { name, icon: null }
     });
     return createHouse;
   }
 
-  async CreateInvite(uses: number, age: number) {
+  async createInvite(uses: number, age: number) {
     let createInvite = await rest.post(`/houses/${this.id}/invites`, {
       data: { max_uses: uses, max_age: age }
     });
     return createInvite.data.data;
   }
 
-  async CreateRoom(name: string) {
+  async createRoom(name: string) {
     if (!name) throw 'missing_name';
 
     // Create Room
@@ -56,7 +56,7 @@ export class House extends BaseCollection {
     });
     if (!createRoom) throw 'failed_to_create_room';
 
-    this.rooms?.Collect(createRoom.id, {
+    this.rooms?.collect(createRoom.id, {
       id: createRoom.id,
       name: createRoom.name,
       house: this,
@@ -64,7 +64,7 @@ export class House extends BaseCollection {
       type: createRoom.type
     });
 
-    return await this.client?.rooms.Collect(createRoom.id, {
+    return await this.client?.rooms.collect(createRoom.id, {
       id: createRoom.id,
       name: createRoom.name,
       house: this,
@@ -81,23 +81,23 @@ export class House extends BaseCollection {
     if (!useInvite.data) throw 'failed_to_use_invite';
 
     // Fetch the house from the house store by the ID and return that with the callback
-    return await this.Collect(getInvite.data.data.house.id, {
+    return await this.collect(getInvite.data.data.house.id, {
       id: getInvite.data.data.house.id,
       name: getInvite.data.data.house.name,
-      owner: this.client?.users.get(getInvite.data.data.house.owner_id),
+      owner: this.client?.users.resolve(getInvite.data.data.house.owner_id),
       icon: getInvite.data.data.house.icon,
       members: getInvite.data.data.house.members,
       rooms: getInvite.data.data.house.rooms
     });
   }
 
-  async Leave() {
+  async leave() {
     // Leave the house
     let leaveHouse = await rest.delete(`/users/@me/houses/${this.id}`);
     return leaveHouse;
   }
 
-  async Delete() {
+  async destroy() {
     let deleteHouse = await rest.delete(`/houses/${this.id}`);
     return deleteHouse;
   }

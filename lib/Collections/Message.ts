@@ -21,25 +21,21 @@ export class Message extends BaseCollection {
     this.client = client;
   }
 
-  Collect(key: string | number, value: any) {
+  collect(key: string, value: any) {
     if (typeof value == 'object') {
-      value.Remove = this.Remove;
-      value.Edit = this.Edit;
+      value.destroy = this.destroy;
+      value.edit = this.edit;
     }
     super.set(key, value);
     return super.get(key);
   }
 
-  Delete(key: string | number) {
-    super.delete(key);
-  }
-
-  async Remove() {
+  async destroy() {
     let deleteMessage = await rest.delete(`/rooms/${this.room?.id}/messages/${this.id}`);
     return deleteMessage;
   }
 
-  async Edit(content: string) {
+  async edit(content: string) {
     let editMessage = await rest.patch(`/rooms/${this.room?.id}/messages/${this.id}`, { data: { content } });
     return editMessage;
   }
