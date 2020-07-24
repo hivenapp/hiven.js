@@ -1,6 +1,6 @@
 {
   "name": "hiven",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Hiven.js - TS/JS bot library for Hiven",
   "main": "dist/index.js",
   "scripts": {
