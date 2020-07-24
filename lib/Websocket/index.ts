@@ -44,8 +44,6 @@ export class WS extends EventEmitter {
     await this.ws?.removeAllListeners();
     await this.ws?.close();
     if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
-
-    console.log('Disconnected');
   }
 
   async init() {
@@ -53,7 +51,6 @@ export class WS extends EventEmitter {
       this.ws = new Websocket(`${SWARM_URL}?encoding=${ENCODING}`);
 
       this.ws.on('open', async () => {
-        console.log('Connected!');
         this.reconnectionCount = 0;
 
         return resolve(true);
@@ -61,12 +58,11 @@ export class WS extends EventEmitter {
 
       this.ws.on('close', async () => {
         // Websocket closed, stop the heartbeat ping and attempt reconnect using the settings from the client
-        console.log(`Disconnected, waiting ${this.settings.reconnectInt}ms before reconnecting`);
+        if (process.env.DEBUG) console.log(`Disconnected, waiting ${this.settings.reconnectInt}ms before reconnecting`);
         setTimeout(async () => {
           await this.ws?.removeAllListeners();
 
           await this.reconnect();
-          console.log('Reconnected!');
         }, this.settings.reconnectInt);
       });
 
