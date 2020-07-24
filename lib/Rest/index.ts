@@ -1,8 +1,10 @@
 // Modules
 import fetch, { HeadersInit } from 'node-fetch';
+import ApiError from '../Errors/ApiError'
 
 // Types
 import { Client } from '../Client';
+
 
 // Constants
 const API_VERSION = 'v1';
@@ -55,7 +57,9 @@ export default class Rest {
       let body;
       if (res.headers.get('content-type')?.includes('application/json')) body = await res.json();
       else body = await res.text();
-
+      if (!body.success) {
+        throw new ApiError({path, status: res.status, error: body.error, method})
+      }
       return body;
     } catch (error) {
       console.error(error);
