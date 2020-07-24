@@ -65,6 +65,7 @@ export class Client extends EventEmitter {
     // Set the token in the instance
     if (this.options.type === 'bot') this.token = `Bot ${token}`;
     else this.token = token;
+    console.log(token, this.options.type, this.token);
 
     this.rest.init(this);
 
@@ -96,9 +97,8 @@ export class Client extends EventEmitter {
             });
           });
 
-          this.emit('init', d);
-          this.emit(e, d);
-          break;
+          this.emit('ready', d);
+          return this.emit(e, d);
         }
         case 'ROOM_CREATE': {
           let createRoomHouse: House = this.houses.Resolve<House>(d.house_id);
@@ -117,13 +117,11 @@ export class Client extends EventEmitter {
 
           this.houses.Collect(createRoomHouse?.id || '', createRoomHouse);
           this.emit('room_create', d);
-          this.emit(e, d);
-          break;
+          return this.emit(e, d);
         }
         case 'ROOM_UPDATE': {
           this.emit('room_update', d);
-          this.emit(e, d);
-          break;
+          return this.emit(e, d);
         }
         case 'ROOM_DELETE': {
           let rooms: Room | undefined = this.houses.Get<House>(d.house_id).rooms?.Get<Room>(d.id);
@@ -132,8 +130,7 @@ export class Client extends EventEmitter {
           this.rooms.delete(d.id);
 
           this.emit('room_delete', d);
-          this.emit(e, d);
-          break;
+          return this.emit(e, d);
         }
         case 'MESSAGE_CREATE': {
           let house = this.houses.Resolve<HouseStore>(d.house_id);
@@ -153,19 +150,16 @@ export class Client extends EventEmitter {
         }
         case 'MESSAGE_UPDATE': {
           this.emit('message_update', d);
-          this.emit(e, d);
-          break;
+          return this.emit(e, d);
         }
         case 'MESSAGE_DELETE': {
           this.messages.Delete(d.id);
           this.emit('message_delete', d);
-          this.emit(e, d);
-          break;
+          return this.emit(e, d);
         }
         case 'TYPING_START': {
-          this.emit(e, d);
           this.emit('typing_start', d);
-          break;
+          return this.emit(e, d);
         }
         case 'HOUSE_JOIN': {
           let joinHouse = d;
@@ -219,7 +213,9 @@ export class Client extends EventEmitter {
             banner: house.banner,
             synced: house.synced
           });
-          break;
+
+          this.emit('house_join', house);
+          return this.emit(e, house);
         }
         case 'HOUSE_MEMBER_JOIN': {
           let houseJoin: House = this.houses.Get<House>(d.house_id);

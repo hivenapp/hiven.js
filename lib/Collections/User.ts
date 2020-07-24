@@ -1,7 +1,7 @@
 // Collection Base
 import { BaseCollection } from './BaseCollection';
 import { rest, Client } from '../Client';
-import { Message, APIMessage } from 'Types/Message';
+import { APIMessage } from '../Types/Message';
 
 // User class
 export class User extends BaseCollection {

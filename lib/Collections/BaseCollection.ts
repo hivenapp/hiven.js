@@ -1,4 +1,3 @@
-// BaseCollection class
 export class BaseCollection extends Map {
   constructor() {
     super();

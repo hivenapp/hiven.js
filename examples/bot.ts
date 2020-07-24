@@ -2,7 +2,7 @@ import { Client } from 'hiven';
 
 const client = new Client({ type: 'user' });
 
-client.on('ready', async (data) => {
+client.on('init', async (data) => {
   console.log(`Ready, connected as ${client.user.username} (${client.user.id})`);
 });
 
