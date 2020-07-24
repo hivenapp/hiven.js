@@ -29,9 +29,6 @@ export default class Rest {
   async init(client: Client) {
     this.client = client;
 
-    if (this.client.options.type === 'bot') this.token = `Bot ${client.token}`;
-    else this.token = client.token;
-
     this.API_HEADERS = {
       authorization: this.token,
       'user-agent': USER_AGENT
