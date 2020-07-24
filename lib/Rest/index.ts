@@ -30,7 +30,7 @@ export default class Rest {
     this.client = client;
 
     this.API_HEADERS = {
-      authorization: this.token,
+      authorization: this.client.token,
       'user-agent': USER_AGENT
     };
   }
