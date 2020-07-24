@@ -1,30 +1,19 @@
 // BaseCollection class
-export default class BaseCollection {
-  private map: any;
-
+export class BaseCollection extends Map {
   constructor() {
-    this.map = new Map();
+    super();
   }
 
-  async resolve(id) {
-    return this.map.get(id);
+  Get<T = any>(id: string): T {
+    return super.get(id);
   }
 
-  delete(k) {
-    return this.map.delete(k);
+  Set<T = any>(id: string, value: any): T {
+    super.set(id, value);
+    return super.get(id);
   }
 
-  set(k, v) {
-    return this.map.set(k, v);
-  }
-
-  get(k) {
-    return this.map.get(k);
-  }
-
-  async toJSON() {
-    return this.map.flatten((e) =>
-      typeof e.toJSON === "function" ? e.toJSON() : null
-    );
+  Resolve<T = any>(id: string): T {
+    return super.get(id);
   }
 }

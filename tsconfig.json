@@ -1,15 +1,18 @@
 {
-    "compilerOptions": {
-      "lib": [
-        "es2017",
-        "dom"
-      ],
-      "outDir": "build",
-      "skipLibCheck": true,
-      "allowSyntheticDefaultImports": true,
-      "types": [
-        "node"
-      ],
-      "experimentalDecorators": true
-    }
-  }
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": "./lib",
+    "typeRoots": ["./Types", "../node_modules/@types"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["examples"]
+}

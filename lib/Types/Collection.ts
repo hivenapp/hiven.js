@@ -1,6 +1,6 @@
-export default interface Collection {
-  collect: (t, v) => void;
-  set: (k: any, v: any) => void;
-  get: <T>(v: any) => T;
-  delete: (k: any) => void;
+export interface Collection {
+  Collect: (t: any, v: any) => void;
+  Set: (k: any, v: any) => void;
+  Get: <T>(v: any) => T;
+  Delete: (k: any) => void;
 }

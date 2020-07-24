@@ -1,48 +1,52 @@
 // Modules
-import { EventEmitter } from "events";
-import Websocket from "./Websocket";
-import Rest from "./Rest/index";
+import { EventEmitter } from 'events';
+import { WS } from './Websocket';
+import Rest from './Rest/index';
 
 // Collections
-import HouseStore from "./Collections/House";
-import MessageStore from "./Collections/Message";
-import MemberStore from "./Collections/Member";
-import RoomStore from "./Collections/Room";
-import UserStore from "./Collections/User";
+import { House as HouseStore } from './Collections/House';
+import { Message as MessageStore } from './Collections/Message';
+import { Member as MemberStore } from './Collections/Member';
+import { Room as RoomStore } from './Collections/Room';
+import { User as UserStore, User } from './Collections/User';
 
 // Types
-import Collection from "./Types/Collection";
-import ClientUser from "./Types/ClientUser";
-import House from "./Types/House";
-import Member from "./Types/Member";
-import Message from "./Types/Message";
-import MessageRoom from "./Types/MessageRoom";
+import { ClientUser } from './Types/ClientUser';
+import { House } from './Collections/House';
+import { Member } from './Collections/Member';
+import { Message } from './Collections/Message';
+import { Room } from './Collections/Room';
+import { MessageRoom, APIBaseRoom, BaseRoom } from './Types/Room';
+import { APIMember } from 'Types/Member';
 
 export declare let rest: Rest;
 export declare let client: Client;
 
-export default class Client extends EventEmitter {
-  
-  private ws: Websocket;
+interface ClientOptions {
+  type: string;
+}
+
+export class Client extends EventEmitter {
+  private ws: WS;
   private rest: Rest;
-  public users: Collection;
-  public rooms: Collection;
-  public houses: Collection;
-  public members: Collection;
-  public messages: Collection;
+  public users: User;
+  public rooms: Room;
+  public houses: House;
+  public members: Member;
+  public messages: Message;
 
-  private user: ClientUser;
-  private options: any;
-  private token: string;
+  public options: any;
+  public user: ClientUser | undefined;
+  public token: string | undefined;
 
-  constructor(options = { clientType: "bot" }) {
+  constructor(options: ClientOptions = { type: 'bot' }) {
     // Call parent class constructor
     super();
 
     this.options = options;
 
-    // Websocket
-    this.ws = new Websocket();
+    // WS
+    this.ws = new WS();
 
     // Rest
 
@@ -57,9 +61,9 @@ export default class Client extends EventEmitter {
     this.messages = new MessageStore(this);
   }
 
-  async connect(token: string) {
+  async Connect(token: string) {
     // Set the token in the instance
-    if (this.options.clientType === "bot") this.token = `Bot ${token}`;
+    if (this.options.type === 'bot') this.token = `Bot ${token}`;
     else this.token = token;
 
     this.rest.init(this);
@@ -70,95 +74,115 @@ export default class Client extends EventEmitter {
     // Auth with the socket
     await this.ws.sendOp(2, { token: token });
 
-    this.ws.on("data", (body) => {
+    this.ws.on('data', (body) => {
       const { e, d } = body;
       // Emits every event to RAW
       let raw = {
         event: e,
-        description: d,
+        description: d
       };
-      this.emit("RAW", raw);
+      this.emit('RAW', raw);
 
-      // Detect if it'sthe init event to set the user in the instance
+      // Detect if it's the init event to set the user in the instance
       switch (e) {
-        case "INIT_STATE":
+        case 'INIT_STATE': {
           this.user = d.user;
-          this.users.set(d.user.id, d.user);
-          d.private_rooms.forEach(room => {
-            this.rooms.collect(room.id, room)
-         })
-          this.emit("ready");
-          break;
-        case "ROOM_CREATE":
-          // New room created, add it to our cache
-          /* eslint-disable-next-line no-case-declarations */
-          let createRoomHouse: House = this.houses.get<House>(d.house_id);
+          this.users.Set(d.user.id, d.user);
+          d.private_rooms.forEach((room: APIBaseRoom) => {
+            this.rooms.Collect(room.id, {
+              id: room.id,
+              name: room.name,
+              house: room.house_id
+            });
+          });
 
-          /* eslint-disable-next-line no-case-declarations */
-          let room: MessageRoom = d;
-
-          createRoomHouse.rooms = [...createRoomHouse.rooms, room];
-
-          this.rooms.collect(room.id, room);
-          this.houses.collect(createRoomHouse.id, createRoomHouse);
-          break;
-        case "ROOM_UPDATE":
-          // Room has been edited
-
+          this.emit('init', d);
           this.emit(e, d);
           break;
-        case "ROOM_DELETE":
-          // Room deleted, remove it from our cache
-          /* eslint-disable-next-line no-case-declarations */
-          let rooms: MessageRoom[] = this.houses // Message Room for now
-            .get<House>(d.house_id)
-            .rooms.filter((r) => r.id !== d.id);
+        }
+        case 'ROOM_CREATE': {
+          let createRoomHouse: House = this.houses.Resolve<House>(d.house_id);
 
-          this.houses.get<House>(d.house_id).rooms = rooms;
+          createRoomHouse.rooms?.Collect(d.id, {
+            id: d.id,
+            name: d.name,
+            house: createRoomHouse
+          });
+
+          this.rooms.Collect(d.id, {
+            id: d.id,
+            name: d.name,
+            house: createRoomHouse
+          });
+
+          this.houses.Collect(createRoomHouse?.id || '', createRoomHouse);
+          this.emit('room_create', d);
+          this.emit(e, d);
+          break;
+        }
+        case 'ROOM_UPDATE': {
+          this.emit('room_update', d);
+          this.emit(e, d);
+          break;
+        }
+        case 'ROOM_DELETE': {
+          let rooms: Room | undefined = this.houses.Get<House>(d.house_id).rooms?.Get<Room>(d.id);
+
+          this.houses.Get<House>(d.house_id).rooms = rooms;
           this.rooms.delete(d.id);
 
+          this.emit('room_delete', d);
           this.emit(e, d);
           break;
-        case "MESSAGE_CREATE":
-          /* eslint-disable-next-line no-case-declarations */
-          let message: Message = {
+        }
+        case 'MESSAGE_CREATE': {
+          let house = this.houses.Resolve<HouseStore>(d.house_id);
+
+          const collect_message = this.messages.Collect(d.id, {
             id: d.id,
             content: d.content,
             timestamp: new Date(d.timestamp),
-            room: this.rooms.get(d.room_id),
-            house: this.houses.get<House>(d.house_id),
-            author: this.users.get(d.author_id),
-          };
+            room: this.rooms.Resolve<Room>(d.room_id),
+            house: this.houses.Resolve<House>(d.house_id),
+            author: this.users.Resolve<User>(d.author_id),
+            member: house?.members?.Resolve<Member>(d.author_id)
+          });
 
-          this.messages.collect(d.id, message);
-          return this.emit(e, message);
-        case "MESSAGE_UPDATE":
-          // Room has been edited
-
+          this.emit('message', collect_message);
+          return this.emit(e, collect_message);
+        }
+        case 'MESSAGE_UPDATE': {
+          this.emit('message_update', d);
           this.emit(e, d);
           break;
-        case "MESSAGE_DELETE":
-          this.messages.delete(d.id);
+        }
+        case 'MESSAGE_DELETE': {
+          this.messages.Delete(d.id);
+          this.emit('message_delete', d);
           this.emit(e, d);
           break;
-        case "TYPING_START":
+        }
+        case 'TYPING_START': {
           this.emit(e, d);
+          this.emit('typing_start', d);
           break;
-        case "HOUSE_JOIN":
-          // Define house object
-          /* eslint-disable-next-line no-case-declarations */
+        }
+        case 'HOUSE_JOIN': {
           let joinHouse = d;
-          let finalRooms = [];
+          let house = this.houses.Resolve<HouseStore>(joinHouse.id);
+          if (!house)
+            house = this.houses.Collect<House>(joinHouse.id, {
+              id: joinHouse.id,
+              name: joinHouse.name,
+              members: new MemberStore(client),
+              rooms: new RoomStore(client)
+            });
 
-          // Handle caching rooms
-          d.rooms.forEach(async (room) => {
-            // Message room for now
-            let house = this.houses.get(room.house_id);
-
-            let finalRoom: MessageRoom = {
+          d.rooms.forEach(async (room: APIBaseRoom) => {
+            let finalRoom: BaseRoom = {
               id: room.id,
               name: room.name,
-              house_id: room.house_id,
+              house,
               position: room.position,
               type: room.type,
               description: room.description,
@@ -166,80 +190,60 @@ export default class Client extends EventEmitter {
               recipients: room.recipients,
               typing: room.typing,
               last_message_id: room.last_message_id,
-              emoji: room.emoji,
+              emoji: room.emoji
             };
-            finalRooms.push(finalRoom);
-            this.rooms.collect(room.id, finalRoom);
+            this.rooms.Collect(room.id, finalRoom);
+            house.rooms?.Collect(room.id, finalRoom);
           });
 
-          // Handle caching members and users
-          /* eslint-disable-next-line no-case-declarations */
-          const members: any[] = [];
-          d.members.forEach(async (member: Member) => {
-            members.push(member);
-            this.users.set(member.id, member.user);
+          d.members.forEach(async (member: APIMember) => {
+            house.members?.Collect(member.id, {
+              id: member.id,
+              roles: member.roles,
+              last_message_id: member.last_message_id,
+              house,
+              user: this.users.Resolve(member.id)
+            });
+            this.users.Collect(member.id, member.user);
+            this.members.Collect(member.id, member.user);
           });
-          joinHouse.members = members;
-
-          /* eslint-disable-next-line no-case-declarations */
-          let newHouse: House = {
-            id: joinHouse.id,
-            name: joinHouse.name,
-            owner_id: joinHouse.owner_id,
-            icon: joinHouse.icon,
-            members: joinHouse.members,
-            rooms: joinHouse.rooms,
-            banner: joinHouse.banner,
-            synced: joinHouse.synced
-          };
 
           // Cache houses
-          this.houses.collect(joinHouse.id, newHouse);
-
-          // Final rooms
-          /* eslint-disable-next-line no-case-declarations */
-          // Cahce houses
-          delete newHouse.rooms;
-          newHouse.rooms = finalRooms;
-
-          this.houses.collect(newHouse.id, newHouse);
+          this.houses.Collect(house.id || '', {
+            id: house.id,
+            name: house.name,
+            owner: this.users.Resolve(house.owner_id || ''),
+            icon: house.icon,
+            members: house.members,
+            rooms: house.rooms,
+            banner: house.banner,
+            synced: house.synced
+          });
           break;
-        case "HOUSE_MEMBER_JOIN":
-          /* eslint-disable-next-line no-case-declarations */
-          let houseJoin: House = this.houses.get<House>(d.house_id);
-
-          /* eslint-disable-next-line no-case-declarations */
+        }
+        case 'HOUSE_MEMBER_JOIN': {
+          let houseJoin: House = this.houses.Get<House>(d.house_id);
           let member: Member = d;
 
-          houseJoin.members.push(member);
+          houseJoin.members?.Collect(member.id, {
+            id: member.id,
+            house: houseJoin
+          });
 
-          this.houses.collect(houseJoin.id, houseJoin);
-          this.users.set(d.user_id, d.user);
+          this.houses.Collect(houseJoin.id || '', houseJoin);
+          this.users.Set(d.user_id, d.user);
 
-          member.house_id = houseJoin.id;
-
+          this.emit('house_member_join', d);
           return this.emit(e, member);
-        case "HOUSE_MEMBER_LEAVE":
-          /* eslint-disable-next-line no-case-declarations */
-          let houseLeave: House = this.houses.get<House>(d.house_id);
-
-          /* eslint-disable-next-line no-case-declarations */
-          const memberToRemove = houseLeave.members.findIndex(
-            (member) => member.id == d.id
-          );
-
-          /* eslint-disable-next-line no-case-declarations */
-          let memberLeave = houseLeave.members[memberToRemove];
-
-          if (memberToRemove) houseLeave.members.slice(memberToRemove, 1);
-
-          this.houses.collect(houseLeave.id, houseLeave);
-
-          memberLeave.house_id = houseLeave.id;
-
-          return this.emit(e, memberLeave);
-        default:
+        }
+        case 'HOUSE_MEMBER_LEAVE': {
+          // Soon
+          this.emit('house_member_leave', d);
+          return this.emit(e, d);
+        }
+        default: {
           break;
+        }
       }
 
       if (body && d) this.emit(e, d);

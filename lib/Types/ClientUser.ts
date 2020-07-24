@@ -1,4 +1,4 @@
-export default interface ClientUser {
+export interface ClientUser {
   icon: string;
   id: string;
   name: string;

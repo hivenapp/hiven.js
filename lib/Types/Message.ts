@@ -1,8 +1,18 @@
-import Room from "./MessageRoom";
-import House from "./House";
-import User from "./User";
+import { MessageRoom } from './Room';
+import { House } from './House';
+import { User } from '../Collections/User';
+import { Room } from '../Collections/Room';
 
-export default interface Message {
+export interface APIMessage {
+  id: string;
+  content: string;
+  timestamp: Date;
+  room_id: string;
+  house_id: string;
+  author_id: string;
+}
+
+export interface Message {
   id: string;
   content: string;
   timestamp: Date;
