@@ -1,15 +1,20 @@
 // Collection Base
-import BaseCollection from "./BaseCollection";
-import Client, { client, rest } from "../Client";
-// Room class
-export default class Room extends BaseCollection {
-  private client: Client;
-  private id;
-  private rooms;
+import { BaseCollection } from './BaseCollection';
+import { Client, rest } from '../Client';
+import { BaseRoom, APIBaseRoom } from '../Types/Room';
+import { House } from './House';
+import { Collection } from 'Types/Collection';
+import { create } from 'domain';
 
-  constructor(Client: Client) {
+export class Room extends BaseCollection implements BaseRoom {
+  private client: Client;
+  public id: string = '';
+  public name: string = '';
+  public house?: House;
+
+  constructor(client: Client) {
     super();
-    this.client = Client;
+    this.client = client;
   }
 
   /**
@@ -17,10 +22,10 @@ export default class Room extends BaseCollection {
    * @param {string} key Object key
    * @param {value} value Object value
    */
-  async collect(key: string | number, value: any) {
-    if (typeof value == "object") {
-      value.send = this.send;
-      value.delete = this.delete;
+  public async Collect(key: string | number, value: any) {
+    if (typeof value == 'object') {
+      value.Send = this.Send;
+      value.Delete = this.Delete;
     }
     super.set(key, value);
     return super.get(key);
@@ -30,52 +35,52 @@ export default class Room extends BaseCollection {
    * Send function to send message to room
    * @param {string} content Message contents
    */
-  async send(content: string) {
+  async Send(content: string) {
     let sendMessage = await rest.post(`/rooms/${this.id}/messages`, {
-      data: { content },
+      data: { content }
     });
     let message = {
-      id: sendMessage.data.data.id,
-      content: sendMessage.data.data.content,
-      timestamp: new Date(sendMessage.data.data.timestamp),
-      room: client.rooms.get(sendMessage.data.data.room_id),
-      house: client.houses.get(sendMessage.data.data.house_id),
-      author: client.users.get(sendMessage.data.data.author_id),
+      id: sendMessage.id,
+      content: sendMessage.content,
+      timestamp: new Date(sendMessage.timestamp),
+      room: this.client?.rooms.get(sendMessage.room_id),
+      house: this.client?.houses.get(sendMessage.house_id),
+      author: this.client?.users.get(sendMessage.author_id)
     };
 
-    let collect = await client.messages.collect(message.id, message);
+    let collect = await this.client?.messages.Collect(message.id, message);
 
     return collect;
   }
 
-  async create(name: string) {
-    if (!this.id) throw "cannot_call_without_house";
-    if (!name) throw "missing_name";
+  Create = async (name: string) => {
+    if (!this.id) throw 'cannot_call_without_house';
+    if (!name) throw 'missing_name';
 
     // Create Room
-    let createRoom = await rest.post(`/houses/${this.id}/rooms`, {
-      data: { name },
+    let createRoom = await rest.post<APIBaseRoom>(`/houses/${this.id}/rooms`, {
+      data: { name }
     });
-    if (!createRoom.data) throw "failed_to_create_room";
+    if (!createRoom) throw 'failed_to_create_room';
 
-    this.rooms.push({
-      id: createRoom.data.data.id,
-      name: createRoom.data.data.name,
+    this.house?.rooms?.Collect(createRoom.id, {
+      id: createRoom.id,
+      name: createRoom.name,
       house: this,
-      position: createRoom.data.data.position,
-      type: createRoom.data.data.type,
+      position: createRoom.position,
+      type: createRoom.type
     });
 
-    return await client.rooms.collect(createRoom.data.data.id, {
-      id: createRoom.data.data.id,
-      name: createRoom.data.data.name,
+    return await this.client.rooms.Collect(createRoom.id, {
+      id: createRoom.id,
+      name: createRoom.name,
       house: this,
-      position: createRoom.data.data.position,
-      type: createRoom.data.data.type,
+      position: createRoom.position,
+      type: createRoom.type
     });
-  }
+  };
 
-  async delete() {
+  async Delete() {
     let deleteRoom = await rest.delete(`/houses/${this.id}/rooms/${this.id}`);
     return deleteRoom;
   }

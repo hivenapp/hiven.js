@@ -1,19 +1,29 @@
 // Collection Base
-import BaseCollection from "./BaseCollection";
+import { BaseCollection } from './BaseCollection';
+import { Client } from 'Client';
+import { House } from './House';
 
 // Member class
-export default class Member extends BaseCollection {
-  private client;
-  constructor(Client) {
+export class Member extends BaseCollection {
+  private client?: Client;
+  public id?: string;
+  public house?: House;
+
+  constructor(client: Client) {
     super();
-    this.client = Client;
+    this.client = client;
   }
 
-  collect = (k, v) => {
-    return super.set(k, v);
+  Send = () => {
+    return false;
   };
 
-  destroy = () => {
+  Collect = <T = any>(k: any, v: any): T => {
+    super.set(k, v);
+    return super.get(k);
+  };
+
+  Delete = () => {
     return;
   };
 }

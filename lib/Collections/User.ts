@@ -1,39 +1,40 @@
 // Collection Base
-import BaseCollection from "./BaseCollection";
-import { rest } from "../Client";
-import { client } from "../Client";
+import { BaseCollection } from './BaseCollection';
+import { rest, Client } from '../Client';
+import { Message, APIMessage } from 'Types/Message';
+
 // User class
-export default class User extends BaseCollection {
-  private client;
-  constructor(Client) {
+export class User extends BaseCollection {
+  private client?: Client;
+
+  constructor(client: Client) {
     super();
-    this.client = Client;
+    this.client = client;
   }
 
-  collect = (key: string | number, value: any) => {
+  Collect = (key: string | number, value: any) => {
     return super.set(key, value);
   };
 
-  destroy = (key: string | number) => {
+  Delete = (key: string | number) => {
     return super.delete(key);
   };
 
-  async send(content: string, id: string) {
-    // Send the message to the api
-    let sendMessage = await rest.post(`/rooms/${id}/messages`, {
-      data: { content },
+  async Send(content: string, id: string) {
+    let sendMessage = await rest.post<APIMessage>(`/rooms/${id}/messages`, {
+      data: { content }
     });
 
     let message = {
-      id: sendMessage.data.data.id,
-      content: sendMessage.data.data.content,
-      timestamp: new Date(sendMessage.data.data.timestamp),
-      room: client.rooms.get(sendMessage.data.data.room_id),
-      house: client.houses.get(sendMessage.data.data.house_id),
-      author: client.users.get(sendMessage.data.data.author_id),
+      id: sendMessage.id,
+      content: sendMessage.content,
+      timestamp: new Date(sendMessage.timestamp),
+      room: this.client?.rooms.Get(sendMessage.room_id),
+      house: this.client?.houses.Get(sendMessage.house_id),
+      author: this.client?.users.Get(sendMessage.author_id)
     };
 
-    let collect = await client.messages.collect(message.id, message);
+    let collect = await this.client?.messages.Collect(message.id, message);
 
     return collect;
   }

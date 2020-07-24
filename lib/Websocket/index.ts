@@ -1,14 +1,25 @@
 // Modules
-const Websocket = require('ws');
-const EventEmitter = require('events');
+import { EventEmitter } from 'events';
+import Websocket from 'ws';
 
 // Static variables
 const SWARM_URL = 'wss://swarm-dev.hiven.io/socket?encoding=json&compression=text_json';
 const ENCODING = 'json';
 
+interface WSSettings {
+  reconnectInt: number;
+  reconnectCount: number;
+}
+
 // WS Class
-export default class WS extends EventEmitter {
-  constructor(settings = { reconnectInt: 5000, reconnectCount: 5 }, cache = {}) {
+export class WS extends EventEmitter {
+  private heartbeatInterval: NodeJS.Timeout | undefined;
+  private reconnectionCount: number;
+  private settings: WSSettings;
+  private cache: any;
+  private ws: Websocket | undefined;
+
+  constructor(settings: WSSettings = { reconnectInt: 5000, reconnectCount: 5 }, cache = {}) {
     super();
 
     this.reconnectionCount = 0;
@@ -16,33 +27,35 @@ export default class WS extends EventEmitter {
     this.cache = cache;
   }
 
-  async sendOp(op, data?) {
-    if (this.ws.readyState != Websocket.OPEN) return false;
-    if (op == 2) { this.cache.token = data.token; }
+  async sendOp(op: number, data?: any) {
+    if (this.ws?.readyState != Websocket.OPEN) return false;
+    if (op == 2) {
+      this.cache.token = data.token;
+    }
     if (data) return this.ws.send(JSON.stringify({ op, d: data }));
     return this.ws.send(JSON.stringify({ op }));
   }
 
-  async startHeartbeat(int) {
+  async startHeartbeat(int: number) {
     this.heartbeatInterval = setInterval(async () => this.sendOp(3), int);
   }
 
   async destroy() {
-    await this.ws.removeAllListeners();
-    await this.ws.close();
-    clearInterval(this.heartbeatInterval);
+    await this.ws?.removeAllListeners();
+    await this.ws?.close();
+    if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
 
-    console.log("Disconnected");
+    console.log('Disconnected');
   }
 
   async init() {
     return new Promise((resolve) => {
       this.ws = new Websocket(`${SWARM_URL}?encoding=${ENCODING}`);
-  
+
       this.ws.on('open', async () => {
-        console.log("Connected!")
+        console.log('Connected!');
         this.reconnectionCount = 0;
-        
+
         return resolve(true);
       });
 
@@ -50,14 +63,14 @@ export default class WS extends EventEmitter {
         // Websocket closed, stop the heartbeat ping and attempt reconnect using the settings from the client
         console.log(`Disconnected, waiting ${this.settings.reconnectInt}ms before reconnecting`);
         setTimeout(async () => {
-          await this.ws.removeAllListeners();
+          await this.ws?.removeAllListeners();
 
           await this.reconnect();
           console.log('Reconnected!');
         }, this.settings.reconnectInt);
       });
 
-      this.ws.on('message', async data => {
+      this.ws.on('message', async (data: any) => {
         try {
           let body = JSON.parse(data);
 
@@ -68,7 +81,7 @@ export default class WS extends EventEmitter {
           }
 
           this.emit('data', body);
-        } catch (error) { } /* eslint-disable-line no-empty */
+        } catch (error) {} /* eslint-disable-line no-empty */
       });
     });
   }

@@ -1,6 +1,6 @@
-import User from './User'
+import { User } from './User';
 
-export default interface Member {
+export interface Member {
   house_id: string;
   id: string;
   joined_at: string;
@@ -8,4 +8,15 @@ export default interface Member {
   roles: null;
   user: User;
   user_id: string;
+}
+
+export interface APIMember {
+  id: string;
+  house_id: string;
+  user_id: string;
+  joined_at: string;
+  presence: string;
+  roles?: null;
+  user: User;
+  last_message_id?: string;
 }
