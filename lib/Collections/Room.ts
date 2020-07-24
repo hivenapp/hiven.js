@@ -3,8 +3,7 @@ import { BaseCollection } from './BaseCollection';
 import { Client, rest } from '../Client';
 import { BaseRoom, APIBaseRoom } from '../Types/Room';
 import { House } from './House';
-import { Collection } from 'Types/Collection';
-import { create } from 'domain';
+import { Collection } from '../Types/Collection';
 
 export class Room extends BaseCollection implements BaseRoom {
   private client: Client;
