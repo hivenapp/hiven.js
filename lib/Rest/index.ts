@@ -58,7 +58,8 @@ export default class Rest {
       if (res.headers.get('content-type')?.includes('application/json')) body = await res.json();
       else body = await res.text();
       if (!body.success) {
-        throw new ApiError({path, status: res.status, error: body.error, method})
+        const error = { code: body.error.code, message: body.error.message }
+        throw new ApiError({path, status: res.status, error: error, method})
       }
       return body;
     } catch (error) {
