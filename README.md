@@ -31,14 +31,14 @@ Installation via Yarn
 **IMPORTANT: In order to use this library with a user account you need to instantiate your client with these settings.**
 
 ```js
-const Hiven = require('hiven');
-const client = new Hiven.Client({ type: 'user' });
+const { Client } = require('hiven');
+const client = new Client({ type: 'user' });
 
-client.on('ready', () => {
+client.on('init', () => {
   console.log("Connected to Hiven Swarm!")
 });
 
-client.on('MESSAGE_CREATE', (msg) => {
+client.on('message', (msg) => {
   console.log(`Received message: ${msg.content} from ${msg.author.username}`)
 });
 
