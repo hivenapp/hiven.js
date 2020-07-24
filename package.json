@@ -1,13 +1,13 @@
 {
   "name": "hiven",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Hiven.js - TS/JS bot library for Hiven",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
-    "push": "yarn build; cp -R package.json README.md LICENSE dist; (cd dist && yarn publish); rm -rf dist/package.json dist/README.md dist/LICENSE",
-    "lnk": "yarn build; cp -R package.json README.md LICENSE dist; (cd dist && yarn link)"
+    "push": "rm -rf dist; yarn build; cp -R package.json README.md LICENSE dist; (cd dist && yarn publish); rm -rf dist/package.json dist/README.md dist/LICENSE",
+    "lnk": "rm -rf dist; yarn build; cp -R package.json README.md LICENSE dist; (cd dist && yarn link)"
   },
   "keywords": [],
   "author": "Dustin Rouillard <code@dustin.sh> (https://dustin.sh)",
