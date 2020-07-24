@@ -18,18 +18,18 @@ client.on('message', async (msg) => {
   args.unshift();
 
   if (command == 'test') {
-    msg.Edit('Test success');
+    msg.edit('Test success');
   } else if (command == 'eval') {
     try {
       let evaluation = (() => {
         return eval(raw);
       })();
 
-      msg.Edit(`Evaluation complete!\n\nInput:\n\`\`\`js\n${raw}\n\`\`\`\nOutput:\n\`\`\`\n${evaluation}\n\`\`\``);
+      msg.edit(`Evaluation complete!\n\nInput:\n\`\`\`js\n${raw}\n\`\`\`\nOutput:\n\`\`\`\n${evaluation}\n\`\`\``);
     } catch (error) {
-      msg.Edit(`Evaluation failed!\n\nInput:\n\`\`\`js\n${raw}\n\`\`\`\nOutput:\n\`\`\`\n${error}\n\`\`\``);
+      msg.edit(`Evaluation failed!\n\nInput:\n\`\`\`js\n${raw}\n\`\`\`\nOutput:\n\`\`\`\n${error}\n\`\`\``);
     }
   }
 });
 
-client.Connect(process.env.TOKEN);
+client.connect(process.env.TOKEN);
