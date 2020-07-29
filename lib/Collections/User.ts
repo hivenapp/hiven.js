@@ -2,8 +2,15 @@
 import { BaseCollection } from './BaseCollection';
 import { rest, Client } from '../Client';
 import { APIMessage } from '../Types/Message';
+import { Message } from './Message';
 
-// User class
+export declare interface User {
+  id: string;
+  name: string;
+  username: string;
+  bot: boolean;
+}
+
 export class User extends BaseCollection {
   private client?: Client;
 
@@ -11,7 +18,6 @@ export class User extends BaseCollection {
     super();
     this.client = client;
   }
-
   collect = (key: string, value: any) => {
     return super.set(key, value);
   };
@@ -20,21 +26,21 @@ export class User extends BaseCollection {
     return super.delete(key);
   };
 
-  async send(content: string, id: string) {
-    let sendMessage = await rest.post<APIMessage>(`/rooms/${id}/messages`, {
+  async send(content: string, id: string): Promise<Message> {
+    const sendMessage = await rest.post<{ data: APIMessage }>(`/rooms/${id}/messages`, {
       data: { content }
     });
 
-    let message = {
-      id: sendMessage.id,
-      content: sendMessage.content,
-      timestamp: new Date(sendMessage.timestamp),
-      room: this.client?.rooms.resolve(sendMessage.room_id),
-      house: this.client?.houses.resolve(sendMessage.house_id),
-      author: this.client?.users.resolve(sendMessage.author_id)
+    const message = {
+      id: sendMessage.data.id,
+      content: sendMessage.data.content,
+      timestamp: new Date(sendMessage.data.timestamp),
+      room: this.client?.rooms.get(sendMessage.data.room_id),
+      house: this.client?.houses.get(sendMessage.data.house_id),
+      author: this.client?.users.get(sendMessage.data.author_id)
     };
 
-    let collect = await this.client?.messages.collect(message.id, message);
+    const collect = await this.client?.messages.collect(message.id, message);
 
     return collect;
   }

@@ -1,4 +1,4 @@
-import { User } from './User';
+import { User } from '../Collections/User';
 
 export interface Member {
   house_id: string;

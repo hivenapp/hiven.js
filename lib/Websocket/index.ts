@@ -68,7 +68,7 @@ export class WS extends EventEmitter {
 
       this.ws.on('message', async (data: any) => {
         try {
-          let body = JSON.parse(data);
+          const body = JSON.parse(data);
 
           // Detect if connnection packet
           if (body.op == 1 && body.d && body.d.hbt_int) {

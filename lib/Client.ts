@@ -20,10 +20,16 @@ import { MessageRoom, APIBaseRoom, BaseRoom } from './Types/Room';
 import { APIMember } from 'Types/Member';
 
 export declare let rest: Rest;
+export declare let ws: WS;
 export declare let client: Client;
 
 interface ClientOptions {
   type: string;
+}
+
+export declare interface Client {
+  on(event: 'message', listener: (msg: Message) => void): this;
+  on(event: string, listener: Function): this;
 }
 
 export class Client extends EventEmitter {
@@ -47,6 +53,7 @@ export class Client extends EventEmitter {
 
     // WS
     this.ws = new WS();
+    ws = this.ws;
 
     // Rest
 
@@ -77,9 +84,9 @@ export class Client extends EventEmitter {
     this.ws.on('data', (body) => {
       const { e, d } = body;
       // Emits every event to RAW
-      let raw = {
+      const raw = {
         event: e,
-        description: d
+        data: d
       };
       this.emit('RAW', raw);
 
@@ -89,10 +96,20 @@ export class Client extends EventEmitter {
           this.user = d.user;
           this.users.collect(d.user.id, d.user);
           d.private_rooms.forEach((room: APIBaseRoom) => {
+            const house: House | undefined = this.houses.resolve<House>(d.house_id);
+
             this.rooms.collect(room.id, {
               id: room.id,
               name: room.name,
-              house: room.house_id
+              house: house,
+              position: room.position,
+              type: room.type,
+              description: room.description,
+              permission_overwrites: room.permission_overwrites,
+              recipients: room.recipients,
+              typing: room.typing,
+              last_message_id: room.last_message_id,
+              emoji: room.emoji
             });
           });
 
@@ -100,21 +117,29 @@ export class Client extends EventEmitter {
           return this.emit(e, d);
         }
         case 'ROOM_CREATE': {
-          let createRoomHouse: House = this.houses.resolve<House>(d.house_id);
+          const createRoomHouse: House | undefined = this.houses.resolve<House>(d.house_id);
 
-          createRoomHouse.rooms?.collect(d.id, {
+          const finalRoom: BaseRoom = {
             id: d.id,
             name: d.name,
-            house: createRoomHouse
-          });
+            house: createRoomHouse,
+            position: d.position,
+            type: d.type,
+            description: d.description,
+            permission_overwrites: d.permission_overwrites,
+            recipients: d.recipients,
+            typing: d.typing,
+            last_message_id: d.last_message_id,
+            emoji: d.emoji
+          };
 
-          this.rooms.collect(d.id, {
-            id: d.id,
-            name: d.name,
-            house: createRoomHouse
-          });
+          this.rooms.collect(d.id, finalRoom);
 
-          this.houses.collect(createRoomHouse?.id || '', createRoomHouse);
+          if (createRoomHouse) {
+            createRoomHouse?.rooms?.collect(d.id, finalRoom);
+            this.houses.collect(createRoomHouse?.id || '', createRoomHouse);
+          }
+
           this.emit('room_create', d);
           return this.emit(e, d);
         }
@@ -123,7 +148,7 @@ export class Client extends EventEmitter {
           return this.emit(e, d);
         }
         case 'ROOM_DELETE': {
-          let rooms: Room | undefined = this.houses.resolve<House>(d.house_id).rooms?.resolve<Room>(d.id);
+          const rooms: Room | undefined = this.houses.resolve<House>(d.house_id).rooms?.resolve<Room>(d.id);
 
           this.houses.resolve<House>(d.house_id).rooms = rooms;
           this.rooms.delete(d.id);
@@ -132,7 +157,7 @@ export class Client extends EventEmitter {
           return this.emit(e, d);
         }
         case 'MESSAGE_CREATE': {
-          let house = this.houses.resolve<HouseStore>(d.house_id);
+          const house = this.houses.resolve<HouseStore>(d.house_id);
 
           const collect_message = this.messages.collect(d.id, {
             id: d.id,
@@ -161,7 +186,7 @@ export class Client extends EventEmitter {
           return this.emit(e, d);
         }
         case 'HOUSE_JOIN': {
-          let joinHouse = d;
+          const joinHouse = d;
           let house = this.houses.resolve<HouseStore>(joinHouse.id);
           if (!house)
             house = this.houses.collect<House>(joinHouse.id, {
@@ -172,7 +197,7 @@ export class Client extends EventEmitter {
             });
 
           d.rooms.forEach(async (room: APIBaseRoom) => {
-            let finalRoom: BaseRoom = {
+            const finalRoom: BaseRoom = {
               id: room.id,
               name: room.name,
               house,
@@ -217,8 +242,8 @@ export class Client extends EventEmitter {
           return this.emit(e, house);
         }
         case 'HOUSE_MEMBER_JOIN': {
-          let houseJoin: House = this.houses.resolve<House>(d.house_id);
-          let member: Member = d;
+          const houseJoin: House = this.houses.resolve<House>(d.house_id);
+          const member: Member = d;
 
           houseJoin.members?.collect(member.id, {
             id: member.id,
@@ -234,6 +259,14 @@ export class Client extends EventEmitter {
         case 'HOUSE_MEMBER_LEAVE': {
           // Soon
           this.emit('house_member_leave', d);
+          return this.emit(e, d);
+        }
+        case 'CALL_CREATE': {
+          const room: BaseRoom = this.rooms.resolve<BaseRoom>(d.room_id);
+
+          room.join_token = d.join_token;
+
+          this.emit('call_create', d);
           return this.emit(e, d);
         }
         default: {

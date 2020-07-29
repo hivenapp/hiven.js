@@ -1,10 +1,9 @@
 // Modules
 import fetch, { HeadersInit } from 'node-fetch';
-import ApiError from '../Errors/ApiError'
+import ApiError from '../Errors/ApiError';
 
 // Types
 import { Client } from '../Client';
-
 
 // Constants
 const API_VERSION = 'v1';
@@ -39,7 +38,7 @@ export default class Rest {
 
   async build<T = any>({ method, path, data, headers }: RestBuild): Promise<T> {
     try {
-      let url = `${API_URL}${path}`;
+      const url = `${API_URL}${path}`;
 
       headers = { 'content-type': 'text/plain' };
 
@@ -48,7 +47,7 @@ export default class Rest {
         headers['content-type'] = 'application/json';
       } else headers['content-type'] = '';
 
-      let res = await fetch(url, {
+      const res = await fetch(url, {
         method,
         body: method != 'get' ? data : null,
         headers: { ...headers, ...this.API_HEADERS }
@@ -58,8 +57,8 @@ export default class Rest {
       if (res.headers.get('content-type')?.includes('application/json')) body = await res.json();
       else body = await res.text();
       if (!body.success) {
-        const error = { code: body.error.code, message: body.error.message }
-        throw new ApiError({path, status: res.status, error: error, method})
+        const error = { code: body.error.code, message: body.error.message };
+        throw new ApiError({ path, status: res.status, error: error, method });
       }
       return body;
     } catch (error) {

@@ -26,6 +26,7 @@ export interface BaseRoom {
   recipients?: Mention[];
   last_message_id?: string;
   permission_overwrites?: any;
+  join_token?: string;
   emoji?: { type: number; data: string };
 }
 
