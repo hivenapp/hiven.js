@@ -1,5 +1,6 @@
 import { Mention } from './Mention';
 import { House } from '../Collections/House';
+import { Message as MessageStore } from '../Collections/Message';
 
 export interface APIBaseRoom {
   house_id: string;
@@ -28,6 +29,7 @@ export interface BaseRoom {
   permission_overwrites?: any;
   join_token?: string;
   emoji?: { type: number; data: string };
+  messages: MessageStore;
 }
 
 export interface MessageRoom extends BaseRoom {

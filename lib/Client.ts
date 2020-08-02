@@ -16,7 +16,7 @@ import { House } from './Collections/House';
 import { Member } from './Collections/Member';
 import { Message } from './Collections/Message';
 import { Room } from './Collections/Room';
-import { MessageRoom, APIBaseRoom, BaseRoom } from './Types/Room';
+import { APIBaseRoom, BaseRoom } from './Types/Room';
 import { APIMember } from 'Types/Member';
 
 export declare let rest: Rest;
@@ -28,34 +28,34 @@ interface ClientOptions {
 }
 
 export declare interface Client {
+  ws: WS;
+  rest: Rest;
+  users: User;
+  rooms: Room;
+  houses: House;
+  members: Member;
+  messages: Message;
+  options: ClientOptions;
+  user?: ClientUser;
+  token?: string;
+
+  // Client Events
+  on(event: 'room_create', listener: (room: Room) => void): this;
+  on(event: 'house_join', listener: (house: House) => void): this;
+  on(event: 'house_member_join', listener: (member: Member) => void): this;
+  on(event: 'init', listener: () => void): this;
   on(event: 'message', listener: (msg: Message) => void): this;
   on(event: string, listener: Function): this;
 }
 
 export class Client extends EventEmitter {
-  private ws: WS;
-  private rest: Rest;
-  public users: User;
-  public rooms: Room;
-  public houses: House;
-  public members: Member;
-  public messages: Message;
-
-  public options: any;
-  public user: ClientUser | undefined;
-  public token: string | undefined;
-
   constructor(options: ClientOptions = { type: 'bot' }) {
-    // Call parent class constructor
     super();
 
     this.options = options;
 
-    // WS
     this.ws = new WS();
     ws = this.ws;
-
-    // Rest
 
     this.rest = new Rest(this);
     rest = this.rest;
@@ -68,7 +68,7 @@ export class Client extends EventEmitter {
     this.messages = new MessageStore(this);
   }
 
-  async connect(token: string) {
+  async connect(token: string): Promise<void> {
     // Set the token in the instance
     if (this.options.type === 'bot') this.token = `Bot ${token}`;
     else this.token = token;
@@ -98,7 +98,7 @@ export class Client extends EventEmitter {
           d.private_rooms.forEach((room: APIBaseRoom) => {
             const house: House | undefined = this.houses.resolve<House>(d.house_id);
 
-            this.rooms.collect(room.id, {
+            const collectRoom = {
               id: room.id,
               name: room.name,
               house: house,
@@ -106,11 +106,18 @@ export class Client extends EventEmitter {
               type: room.type,
               description: room.description,
               permission_overwrites: room.permission_overwrites,
-              recipients: room.recipients,
+              recipients: new UserStore(client),
               typing: room.typing,
               last_message_id: room.last_message_id,
               emoji: room.emoji
+            };
+
+            room.recipients?.forEach((recipient) => {
+              this.users.collect(recipient.id, recipient);
+              collectRoom.recipients.collect(recipient.id, recipient);
             });
+
+            this.rooms.collect(room.id, collectRoom);
           });
 
           this.emit('init', d);
@@ -130,7 +137,8 @@ export class Client extends EventEmitter {
             recipients: d.recipients,
             typing: d.typing,
             last_message_id: d.last_message_id,
-            emoji: d.emoji
+            emoji: d.emoji,
+            messages: new MessageStore(client)
           };
 
           this.rooms.collect(d.id, finalRoom);
@@ -140,7 +148,7 @@ export class Client extends EventEmitter {
             this.houses.collect(createRoomHouse?.id || '', createRoomHouse);
           }
 
-          this.emit('room_create', d);
+          this.emit('room_create', finalRoom);
           return this.emit(e, d);
         }
         case 'ROOM_UPDATE': {
@@ -158,19 +166,24 @@ export class Client extends EventEmitter {
         }
         case 'MESSAGE_CREATE': {
           const house = this.houses.resolve<HouseStore>(d.house_id);
+          const room = this.rooms.resolve<Room>(d.room_id);
 
-          const collect_message = this.messages.collect(d.id, {
+          const message = {
             id: d.id,
+            room,
             content: d.content,
             timestamp: new Date(d.timestamp),
-            room: this.rooms.resolve<Room>(d.room_id),
             house: this.houses.resolve<House>(d.house_id),
             author: this.users.resolve<User>(d.author_id),
             member: house?.members?.resolve<Member>(d.author_id)
-          });
+          };
 
-          this.emit('message', collect_message);
-          return this.emit(e, collect_message);
+          if (room) room.messages.collect(message.id, message);
+
+          this.messages.collect(d.id, message);
+
+          this.emit('message', message);
+          return this.emit(e, message);
         }
         case 'MESSAGE_UPDATE': {
           this.emit('message_update', d);
@@ -208,7 +221,8 @@ export class Client extends EventEmitter {
               recipients: room.recipients,
               typing: room.typing,
               last_message_id: room.last_message_id,
-              emoji: room.emoji
+              emoji: room.emoji,
+              messages: new MessageStore(client)
             };
             this.rooms.collect(room.id, finalRoom);
             house.rooms?.collect(room.id, finalRoom);
@@ -276,11 +290,9 @@ export class Client extends EventEmitter {
 
       if (body && d) this.emit(e, d);
     });
-
-    return true;
   }
 
-  async destroy() {
+  destroy(): void {
     this.ws.destroy();
   }
 }

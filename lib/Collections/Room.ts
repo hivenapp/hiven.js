@@ -1,15 +1,26 @@
 // Collection Base
 import { BaseCollection } from './BaseCollection';
 import { Client, rest, ws } from '../Client';
-import { BaseRoom, APIBaseRoom } from '../Types/Room';
+import { APIBaseRoom } from '../Types/Room';
 import { House } from './House';
-import { Collection } from '../Types/Collection';
 import { Voice } from '../Voice';
 import { Message } from './Message';
+import { User } from './User';
 
-export class Room extends BaseCollection implements BaseRoom {
+export declare interface Room {
+  id: string;
+  name: string;
+  content: string;
+  timestamp: Date;
+  room: Room;
+  house: House;
+  author: User;
+  messages: Message;
+  recipients: User;
+}
+
+export class Room extends BaseCollection {
   public client: Client;
-  public house?: House;
   join_token?: string;
 
   constructor(client: Client) {
@@ -17,21 +28,19 @@ export class Room extends BaseCollection implements BaseRoom {
     this.client = client;
   }
 
-  public id = '';
-  public name = '';
-
   /**
    *
    * @param {string} key Object key
    * @param {value} value Object value
    */
-  public async collect(key: string, value: any) {
+  public collect<T = any>(key: string, value: any): T {
     if (typeof value == 'object') {
       value.client = this.client;
       value.send = this.send;
       value.delete = this.delete;
       value.join = this.join;
       value.leave = this.leave;
+      value.startTyping = this.startTyping;
     }
     super.set(key, value);
     return super.get(key);
@@ -60,7 +69,7 @@ export class Room extends BaseCollection implements BaseRoom {
     return collect;
   }
 
-  create = async (name: string) => {
+  create = async (name: string): Promise<Room> => {
     if (!this.id) throw 'cannot_call_without_house';
     if (!name) throw 'missing_name';
 
@@ -78,7 +87,7 @@ export class Room extends BaseCollection implements BaseRoom {
       type: createRoom.type
     });
 
-    return await this.client.rooms.collect(createRoom.id, {
+    return await this.client.rooms.collect<Room>(createRoom.id, {
       id: createRoom.id,
       name: createRoom.name,
       house: this,
@@ -124,9 +133,14 @@ export class Room extends BaseCollection implements BaseRoom {
     return;
   }
 
-  async leave(): Promise<void> {
+  leave(): void {
     ws.sendOp(5, { room_id: null, muted: false });
+  }
 
-    return;
+  /**
+   * Start typing in the room for 10 seconds
+   */
+  async startTyping(): Promise<void> {
+    await rest.post(`/rooms/${this.id}/typing`, {});
   }
 }
