@@ -17,7 +17,7 @@ import { Member } from './Collections/Member';
 import { Message } from './Collections/Message';
 import { Room } from './Collections/Room';
 import { APIBaseRoom, BaseRoom } from './Types/Room';
-import { APIMember } from 'Types/Member';
+import { APIMember } from './Types/Member';
 
 export declare let rest: Rest;
 export declare let ws: WS;
@@ -90,7 +90,6 @@ export class Client extends EventEmitter {
       };
       this.emit('RAW', raw);
 
-      // Detect if it's the init event to set the user in the instance
       switch (e) {
         case 'INIT_STATE': {
           this.user = d.user;
@@ -109,7 +108,8 @@ export class Client extends EventEmitter {
               recipients: new UserStore(client),
               typing: room.typing,
               last_message_id: room.last_message_id,
-              emoji: room.emoji
+              emoji: room.emoji,
+              messages: new MessageStore(client)
             };
 
             room.recipients?.forEach((recipient) => {
@@ -165,25 +165,29 @@ export class Client extends EventEmitter {
           return this.emit(e, d);
         }
         case 'MESSAGE_CREATE': {
-          const house = this.houses.resolve<HouseStore>(d.house_id);
-          const room = this.rooms.resolve<Room>(d.room_id);
+          try {
+            const house = this.houses.resolve<HouseStore>(d.house_id);
+            const room = this.rooms.resolve<Room>(d.room_id);
 
-          const message = {
-            id: d.id,
-            room,
-            content: d.content,
-            timestamp: new Date(d.timestamp),
-            house: this.houses.resolve<House>(d.house_id),
-            author: this.users.resolve<User>(d.author_id),
-            member: house?.members?.resolve<Member>(d.author_id)
-          };
+            const message = {
+              id: d.id,
+              room,
+              content: d.content,
+              timestamp: new Date(d.timestamp),
+              house,
+              author: this.users.resolve<User>(d.author_id),
+              member: house?.members?.resolve<Member>(d.author_id)
+            };
 
-          if (room) room.messages.collect(message.id, message);
+            if (room) room.messages.collect(message.id, message);
 
-          this.messages.collect(d.id, message);
+            this.messages.collect(d.id, message);
 
-          this.emit('message', message);
-          return this.emit(e, message);
+            this.emit('message', message);
+            return this.emit(e, message);
+          } catch (error) {
+            console.log(error);
+          }
         }
         case 'MESSAGE_UPDATE': {
           this.emit('message_update', d);
@@ -244,7 +248,7 @@ export class Client extends EventEmitter {
           this.houses.collect(house.id || '', {
             id: house.id,
             name: house.name,
-            owner: this.users.resolve(house.owner_id || ''),
+            owner: this.users.resolve(joinHouse.owner_id) || joinHouse.owner_id,
             icon: house.icon,
             members: house.members,
             rooms: house.rooms,

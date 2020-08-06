@@ -3,12 +3,14 @@ import { BaseCollection } from './BaseCollection';
 import { rest, Client } from '../Client';
 import { APIMessage } from '../Types/Message';
 import { Message } from './Message';
+import { SnowflakeToDate } from '../Utils/Snowflake';
 
 export declare interface User {
   id: string;
   name: string;
   username: string;
   bot: boolean;
+  created: Date;
 }
 
 export class User extends BaseCollection {
@@ -19,6 +21,9 @@ export class User extends BaseCollection {
     this.client = client;
   }
   collect = (key: string, value: any) => {
+    // If the value has an id add a .created attribute
+    if (typeof value == 'object' && value.id && SnowflakeToDate(value.id)) value.created = SnowflakeToDate(value.id);
+
     return super.set(key, value);
   };
 

@@ -6,6 +6,7 @@ import { House } from './House';
 import { Voice } from '../Voice';
 import { Message } from './Message';
 import { User } from './User';
+import { SnowflakeToDate } from '../Utils/Snowflake';
 
 export declare interface Room {
   id: string;
@@ -17,6 +18,7 @@ export declare interface Room {
   author: User;
   messages: Message;
   recipients: User;
+  created: Date;
 }
 
 export class Room extends BaseCollection {
@@ -35,6 +37,7 @@ export class Room extends BaseCollection {
    */
   public collect<T = any>(key: string, value: any): T {
     if (typeof value == 'object') {
+      if (value.id && SnowflakeToDate(value.id)) value.created = SnowflakeToDate(value.id);
       value.client = this.client;
       value.send = this.send;
       value.delete = this.delete;
