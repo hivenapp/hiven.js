@@ -18,6 +18,7 @@ import { Message } from './Collections/Message';
 import { Room } from './Collections/Room';
 import { APIBaseRoom, BaseRoom } from './Types/Room';
 import { APIMember } from './Types/Member';
+import { TypingStart, MessageDelete, MessageUpdate, Init } from './Types/Events';
 
 export declare let rest: Rest;
 export declare let ws: WS;
@@ -41,10 +42,17 @@ export declare interface Client {
 
   // Client Events
   on(event: 'room_create', listener: (room: Room) => void): this;
+  on(event: 'room_delete', listener: (event: any) => void): this;
+  on(event: 'room_update', listener: (event: any) => void): this;
   on(event: 'house_join', listener: (house: House) => void): this;
   on(event: 'house_member_join', listener: (member: Member) => void): this;
-  on(event: 'init', listener: () => void): this;
+  on(event: 'house_member_leave', listener: (member: Member) => void): this;
+  on(event: 'init', listener: (init: Init) => void): this;
   on(event: 'message', listener: (msg: Message) => void): this;
+  on(event: 'message_delete', listener: (event: MessageDelete) => void): this;
+  on(event: 'message_update', listener: (event: MessageUpdate) => void): this;
+  on(event: 'typing_start', listener: (event: TypingStart) => void): this;
+  on(event: 'call_create', listener: (call: any) => void): this;
   on(event: string, listener: Function): this;
 }
 

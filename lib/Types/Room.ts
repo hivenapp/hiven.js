@@ -40,3 +40,13 @@ export interface MessageRoom extends BaseRoom {
   typing: boolean;
   emoji?: { type: number; data: string };
 }
+
+export interface PrivateRoom extends BaseRoom {
+  type: number;
+  recipients: Mention[];
+  permission_overrides?: any;
+  owner_id?: string;
+  last_message_id: string;
+  house_id?: string;
+  default_permission_override?: any;
+}
