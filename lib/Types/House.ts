@@ -1,6 +1,5 @@
-import { Member, APIMember } from './Member';
-import { MessageRoom } from './Room';
 import { Room } from '../Collections/Room';
+import { APIMember, Member } from './Member';
 
 export interface House {
   banner?: string;

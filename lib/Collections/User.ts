@@ -1,9 +1,10 @@
 // Collection Base
 import { BaseCollection } from './BaseCollection';
-import { rest, Client } from '../Client';
+
+import { Client, rest } from '../Client';
 import { APIMessage } from '../Types/Message';
-import { Message } from './Message';
 import { SnowflakeToDate } from '../Utils/Snowflake';
+import { Message } from './Message';
 
 export declare interface User {
   id: string;

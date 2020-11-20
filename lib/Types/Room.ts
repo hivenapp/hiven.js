@@ -1,6 +1,6 @@
-import { Mention } from './Mention';
 import { House } from '../Collections/House';
 import { Message as MessageStore } from '../Collections/Message';
+import { Mention } from './Mention';
 
 export interface APIBaseRoom {
   house_id: string;

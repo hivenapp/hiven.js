@@ -1,6 +1,7 @@
 // Collection Base
 import { BaseCollection } from './BaseCollection';
-import { rest, Client } from '../Client';
+
+import { Client, rest } from '../Client';
 import { House } from './House';
 import { Room } from './Room';
 import { User } from './User';

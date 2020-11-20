@@ -1,23 +1,23 @@
 // Modules
 import { EventEmitter } from 'events';
-import { WS } from './Websocket';
 import Rest from './Rest/index';
+import { WS } from './Websocket';
 
 // Collections
 import { House as HouseStore } from './Collections/House';
-import { Message as MessageStore } from './Collections/Message';
 import { Member as MemberStore } from './Collections/Member';
+import { Message as MessageStore } from './Collections/Message';
 import { Room as RoomStore } from './Collections/Room';
-import { User as UserStore, User } from './Collections/User';
+import { User, User as UserStore } from './Collections/User';
 
 // Types
-import { ClientUser } from './Types/ClientUser';
 import { House } from './Collections/House';
 import { Member } from './Collections/Member';
 import { Message } from './Collections/Message';
 import { Room } from './Collections/Room';
-import { APIBaseRoom, BaseRoom } from './Types/Room';
+import { ClientUser } from './Types/ClientUser';
 import { APIMember } from './Types/Member';
+import { APIBaseRoom, BaseRoom } from './Types/Room';
 
 export declare let rest: Rest;
 export declare let ws: WS;

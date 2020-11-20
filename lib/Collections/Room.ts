@@ -1,12 +1,13 @@
 // Collection Base
 import { BaseCollection } from './BaseCollection';
+
 import { Client, rest, ws } from '../Client';
 import { APIBaseRoom } from '../Types/Room';
-import { House } from './House';
+import { SnowflakeToDate } from '../Utils/Snowflake';
 import { Voice } from '../Voice';
+import { House } from './House';
 import { Message } from './Message';
 import { User } from './User';
-import { SnowflakeToDate } from '../Utils/Snowflake';
 
 export declare interface Room {
   id: string;

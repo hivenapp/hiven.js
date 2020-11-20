@@ -1,11 +1,11 @@
 // Collection Base
 import { BaseCollection } from './BaseCollection';
 
+import { Client, rest } from '../Client';
 import { MessageRoom } from '../Types/Room';
-import { rest, Client } from '../Client';
-import { Room } from './Room';
-import { Member } from './Member';
 import { SnowflakeToDate } from '../Utils/Snowflake';
+import { Member } from './Member';
+import { Room } from './Room';
 import { User } from './User';
 
 export declare interface House {

@@ -8,7 +8,7 @@ import { Client } from '../Client';
 // Constants
 const API_VERSION = 'v1';
 const API_URL = `https://api.hiven.io/${API_VERSION}`;
-const USER_AGENT = 'Hiven.js (Version 1.0.0) - https://github.com/hivenapp/hiven.js';
+const USER_AGENT = 'Hiven.js (Version 2.0.8) - https://github.com/hivenapp/hiven.js';
 
 interface RestBuild {
   method: 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head';
