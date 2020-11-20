@@ -23,7 +23,7 @@ export declare let rest: Rest;
 export declare let ws: WS;
 export declare let client: Client;
 
-interface ClientOptions {
+export declare interface ClientOptions {
   type: string;
 }
 
