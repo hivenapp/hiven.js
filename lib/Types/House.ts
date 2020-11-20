@@ -1,4 +1,4 @@
-import { Room } from '../Collections/Room';
+import { RoomCollection } from '../Collections/Room';
 import { APIMember, Member } from './Member';
 
 export interface House {
@@ -8,7 +8,7 @@ export interface House {
   members: Member[];
   name: string;
   owner_id: string;
-  rooms: Room;
+  rooms: RoomCollection;
   synced: boolean;
   unavailable?: boolean;
 }
@@ -19,7 +19,7 @@ export interface APIHouse {
   id: string;
   members: APIMember[];
   name: string;
-  rooms: Room;
+  rooms: RoomCollection;
   house_id: string;
   owner_id: string;
   synced: boolean;

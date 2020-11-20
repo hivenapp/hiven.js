@@ -1,4 +1,4 @@
-import { User } from '../Collections/User';
+import { UserCollection } from '../Collections/User';
 
 export interface Member {
   house_id: string;
@@ -6,7 +6,7 @@ export interface Member {
   joined_at: string;
   presence: string;
   roles: null;
-  user: User;
+  user: UserCollection;
   user_id: string;
 }
 
@@ -17,6 +17,6 @@ export interface APIMember {
   joined_at: string;
   presence: string;
   roles?: null;
-  user: User;
+  user: UserCollection;
   last_message_id?: string;
 }

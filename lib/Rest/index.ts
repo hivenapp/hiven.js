@@ -10,7 +10,7 @@ const API_VERSION = 'v1';
 const API_URL = `https://api.hiven.io/${API_VERSION}`;
 const USER_AGENT = 'Hiven.js (Version 2.0.8) - https://github.com/hivenapp/hiven.js';
 
-interface RestBuild {
+export interface RestBuild {
   method: 'get' | 'post' | 'put' | 'delete' | 'patch' | 'options' | 'head';
   path: string;
   data: any;

@@ -2,20 +2,20 @@
 import { BaseCollection } from './BaseCollection';
 
 import { Client, rest } from '../Client';
-import { House } from './House';
-import { Room } from './Room';
-import { User } from './User';
+import { HouseCollection } from './House';
+import { RoomCollection } from './Room';
+import { UserCollection } from './User';
 
-export declare interface Message {
+export declare interface MessageCollection {
   id: string;
   content: string;
   timestamp: Date;
-  room: Room;
-  house: House;
-  author: User;
+  room: RoomCollection;
+  house: HouseCollection;
+  author: UserCollection;
 }
 
-export class Message extends BaseCollection {
+export class MessageCollection extends BaseCollection {
   private client: Client;
 
   constructor(client: Client) {

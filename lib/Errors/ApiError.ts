@@ -1,9 +1,9 @@
-interface Error {
+export interface Error {
   code: string;
   message: string;
 }
 
-interface APIError {
+export interface APIError {
   path: string;
   status: number;
   error: Error;

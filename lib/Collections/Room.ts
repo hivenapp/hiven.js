@@ -5,24 +5,24 @@ import { Client, rest, ws } from '../Client';
 import { APIBaseRoom } from '../Types/Room';
 import { SnowflakeToDate } from '../Utils/Snowflake';
 import { Voice } from '../Voice';
-import { House } from './House';
-import { Message } from './Message';
-import { User } from './User';
+import { HouseCollection } from './House';
+import { MessageCollection } from './Message';
+import { UserCollection } from './User';
 
-export declare interface Room {
+export declare interface RoomCollection {
   id: string;
   name: string;
   content: string;
   timestamp: Date;
-  room: Room;
-  house: House;
-  author: User;
-  messages: Message;
-  recipients: User;
+  room: RoomCollection;
+  house: HouseCollection;
+  author: UserCollection;
+  messages: MessageCollection;
+  recipients: UserCollection;
   created: Date;
 }
 
-export class Room extends BaseCollection {
+export class RoomCollection extends BaseCollection {
   public client: Client;
   join_token?: string;
 
@@ -54,7 +54,7 @@ export class Room extends BaseCollection {
    * Send function to send message to room
    * @param {string} content Message contents
    */
-  async send(content: string): Promise<Message> {
+  async send(content: string): Promise<MessageCollection> {
     const sendMessage = await rest.post(`/rooms/${this.id}/messages`, {
       data: { content }
     });
@@ -68,12 +68,12 @@ export class Room extends BaseCollection {
       author: this.client?.users.get(sendMessage.data.author_id)
     };
 
-    const collect = this.client?.messages.collect<Message>(message.id, message);
+    const collect = this.client?.messages.collect<MessageCollection>(message.id, message);
 
     return collect;
   }
 
-  create = async (name: string): Promise<Room> => {
+  create = async (name: string): Promise<RoomCollection> => {
     if (!this.id) throw 'cannot_call_without_house';
     if (!name) throw 'missing_name';
 
@@ -91,7 +91,7 @@ export class Room extends BaseCollection {
       type: createRoom.type
     });
 
-    return await this.client.rooms.collect<Room>(createRoom.id, {
+    return await this.client.rooms.collect<RoomCollection>(createRoom.id, {
       id: createRoom.id,
       name: createRoom.name,
       house: this,

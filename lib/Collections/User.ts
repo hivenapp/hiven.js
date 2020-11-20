@@ -4,9 +4,9 @@ import { BaseCollection } from './BaseCollection';
 import { Client, rest } from '../Client';
 import { APIMessage } from '../Types/Message';
 import { SnowflakeToDate } from '../Utils/Snowflake';
-import { Message } from './Message';
+import { MessageCollection } from './Message';
 
-export declare interface User {
+export declare interface UserCollection {
   id: string;
   name: string;
   username: string;
@@ -14,7 +14,7 @@ export declare interface User {
   created: Date;
 }
 
-export class User extends BaseCollection {
+export class UserCollection extends BaseCollection {
   private client?: Client;
 
   constructor(client: Client) {
@@ -32,7 +32,7 @@ export class User extends BaseCollection {
     return super.delete(key);
   };
 
-  async send(content: string, id: string): Promise<Message> {
+  async send(content: string, id: string): Promise<MessageCollection> {
     const sendMessage = await rest.post<{ data: APIMessage }>(`/rooms/${id}/messages`, {
       data: { content }
     });

@@ -1,7 +1,7 @@
-import { House } from "../Collections/House";
-import { Room } from "../Collections/Room";
-import { User } from "../Collections/User";
-import { Member } from "../Collections/Member";
+import { HouseCollection } from "../Collections/House";
+import { RoomCollection } from "../Collections/Room";
+import { UserCollection } from "../Collections/User";
+import { MemberCollection } from "../Collections/Member";
 import { APIBaseRoom, BaseRoom } from "./Room";
 
 // `any` isnt a strict type I know but its more user friendly than casting `unknown` to a payload type they dont know
@@ -22,10 +22,10 @@ export interface ClientEvents {
   MESSAGE_DELETE: [any];
   typing_start: [any];
   TYPING_START: [any];
-  house_join: [House];
-  HOUSE_JOIN: [House];
-  house_member_join: [Member];
-  HOUSE_MEMBER_JOIN: [Member];
+  house_join: [HouseCollection];
+  HOUSE_JOIN: [HouseCollection];
+  house_member_join: [MemberCollection];
+  HOUSE_MEMBER_JOIN: [MemberCollection];
   house_member_leave: [any];
   HOUSE_MEMBER_LEAVE: [any];
   call_create: [any];
@@ -39,10 +39,10 @@ export interface RawEventBody {
 
 export interface HouseMessage {
   id: string;
-  room: Room;
+  room: RoomCollection;
   content: string;
   timestamp: Date;
-  house: House;
-  author: User;
-  member?: Member;
+  house: HouseCollection;
+  author: UserCollection;
+  member?: MemberCollection;
 }

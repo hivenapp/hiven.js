@@ -4,24 +4,24 @@ import { BaseCollection } from './BaseCollection';
 import { Client, rest } from '../Client';
 import { MessageRoom } from '../Types/Room';
 import { SnowflakeToDate } from '../Utils/Snowflake';
-import { Member } from './Member';
-import { Room } from './Room';
-import { User } from './User';
+import { MemberCollection } from './Member';
+import { RoomCollection } from './Room';
+import { UserCollection } from './User';
 
-export declare interface House {
+export declare interface HouseCollection {
   id: string;
   name: string;
-  owner?: User;
+  owner?: UserCollection;
   icon?: string;
   banner?: string;
   synced?: boolean;
-  members?: Member;
-  rooms?: Room;
+  members?: MemberCollection;
+  rooms?: RoomCollection;
   created: Date;
 }
 
 // House class
-export class House extends BaseCollection {
+export class HouseCollection extends BaseCollection {
   private client?: Client;
 
   constructor(client: Client) {

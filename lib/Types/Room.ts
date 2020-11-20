@@ -1,5 +1,5 @@
-import { House } from '../Collections/House';
-import { Message as MessageStore } from '../Collections/Message';
+import { HouseCollection } from '../Collections/House';
+import { MessageCollection as MessageStore } from '../Collections/Message';
 import { Mention } from './Mention';
 
 export interface APIBaseRoom {
@@ -18,7 +18,7 @@ export interface APIBaseRoom {
 
 export interface BaseRoom {
   id: string;
-  house?: House;
+  house?: HouseCollection;
   name: string;
   type?: number;
   typing?: boolean;

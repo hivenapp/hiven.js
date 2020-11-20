@@ -2,13 +2,13 @@
 import { BaseCollection } from './BaseCollection';
 
 import { Client } from '../Client';
-import { House } from './House';
+import { HouseCollection } from './House';
 
 // Member class
-export class Member extends BaseCollection {
+export class MemberCollection extends BaseCollection {
   private client?: Client;
   public id?: string;
-  public house?: House;
+  public house?: HouseCollection;
 
   constructor(client: Client) {
     super();
