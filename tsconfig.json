@@ -10,6 +10,7 @@
     "sourceMap": true,
     "declaration": true,
     "emitDecoratorMetadata": true,
+    "preserveConstEnums": true,
     "baseUrl": "./lib",
     "typeRoots": ["./Types", "../node_modules/@types"]
   },

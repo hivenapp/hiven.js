@@ -20,7 +20,6 @@ interface RestBuild {
 // Rest class
 export default class Rest {
   private client: Client;
-  private token?: string;
   private API_HEADERS: any;
 
   constructor(client: Client) {

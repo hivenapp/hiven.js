@@ -18,37 +18,58 @@ import { Room } from './Collections/Room';
 import { ClientUser } from './Types/ClientUser';
 import { APIMember } from './Types/Member';
 import { APIBaseRoom, BaseRoom } from './Types/Room';
+import { ClientEvents, HouseMessage, RawEventBody } from './Types/Events';
+
+import { enumerable } from './Utils/decorators';
 
 export declare let rest: Rest;
 export declare let ws: WS;
 export declare let client: Client;
 
-export declare interface ClientOptions {
+export interface ClientOptions {
   type: string;
 }
 
-export declare interface Client {
-  ws: WS;
-  rest: Rest;
-  users: User;
-  rooms: Room;
-  houses: House;
-  members: Member;
-  messages: Message;
-  options: ClientOptions;
-  user?: ClientUser;
-  token?: string;
+export interface Client {
+  on<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
+  on<S extends string | symbol>(
+    event: Exclude<S, keyof ClientEvents>,
+    listener: (...args: any[]) => void,
+  ): this;
 
-  // Client Events
-  on(event: 'room_create', listener: (room: Room) => void): this;
-  on(event: 'house_join', listener: (house: House) => void): this;
-  on(event: 'house_member_join', listener: (member: Member) => void): this;
-  on(event: 'init', listener: () => void): this;
-  on(event: 'message', listener: (msg: Message) => void): this;
-  on(event: string, listener: Function): this;
+  once<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
+  once<S extends string | symbol>(
+    event: Exclude<S, keyof ClientEvents>,
+    listener: (...args: any[]) => void,
+  ): this;
+
+  emit<K extends keyof ClientEvents>(event: K, ...args: ClientEvents[K]): boolean;
+  emit<S extends string | symbol>(event: Exclude<S, keyof ClientEvents>, ...args: any[]): boolean;
+
+  off<K extends keyof ClientEvents>(event: K, listener: (...args: ClientEvents[K]) => void): this;
+  off<S extends string | symbol>(
+    event: Exclude<S, keyof ClientEvents>,
+    listener: (...args: any[]) => void,
+  ): this;
+
+  removeAllListeners<K extends keyof ClientEvents>(event?: K): this;
+  removeAllListeners<S extends string | symbol>(event?: Exclude<S, keyof ClientEvents>): this;
 }
-
 export class Client extends EventEmitter {
+
+  public ws: WS;
+  public rest: Rest;
+  public users: User;
+  public rooms: Room;
+  public houses: House;
+  public members: Member;
+  public messages: Message;
+  public options: ClientOptions;
+  public user?: ClientUser;
+
+  @enumerable(false)
+  public token?: string;
+
   constructor(options: ClientOptions = { type: 'bot' }) {
     super();
 
@@ -84,7 +105,7 @@ export class Client extends EventEmitter {
     this.ws.on('data', (body) => {
       const { e, d } = body;
       // Emits every event to RAW
-      const raw = {
+      const raw: RawEventBody = {
         event: e,
         data: d
       };
@@ -169,7 +190,7 @@ export class Client extends EventEmitter {
             const house = this.houses.resolve<HouseStore>(d.house_id);
             const room = this.rooms.resolve<Room>(d.room_id);
 
-            const message = {
+            const message: HouseMessage = {
               id: d.id,
               room,
               content: d.content,
@@ -271,8 +292,8 @@ export class Client extends EventEmitter {
           this.houses.collect(houseJoin.id || '', houseJoin);
           this.users.collect(d.user_id, d.user);
 
-          this.emit('house_member_join', d);
-          return this.emit(e, member);
+          this.emit('house_member_join', member);
+          return this.emit(e, d);
         }
         case 'HOUSE_MEMBER_LEAVE': {
           // Soon
