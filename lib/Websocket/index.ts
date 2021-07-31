@@ -3,7 +3,7 @@ import { EventEmitter } from 'events';
 import Websocket from 'ws';
 
 // Static variables
-const SWARM_URL = 'wss://swarm-dev.hiven.io/socket?encoding=json&compression=text_json';
+const SWARM_URL = 'wss://swarm.hiven.io/socket?encoding=json&compression=text_json';
 const ENCODING = 'json';
 
 interface WSSettings {
@@ -77,7 +77,7 @@ export class WS extends EventEmitter {
           }
 
           this.emit('data', body);
-        } catch (error) {} /* eslint-disable-line no-empty */
+        } catch (error) { } /* eslint-disable-line no-empty */
       });
     });
   }
