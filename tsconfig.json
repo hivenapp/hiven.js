@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "sourceMap": true,
+    "skipLibCheck": true,
     "declaration": true,
     "emitDecoratorMetadata": true,
     "baseUrl": "./lib",

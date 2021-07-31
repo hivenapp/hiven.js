@@ -3,8 +3,9 @@ import { EventEmitter } from 'events';
 import Websocket from 'ws';
 
 // Static variables
-const SWARM_URL = 'wss://swarm.hiven.io/socket?encoding=json&compression=text_json';
 const ENCODING = 'json';
+const COMPRESSION: 'zlib' | 'text' = 'text';
+const SWARM_URL = `wss://swarm.hiven.io/socket?compression=${COMPRESSION}_json&encoding=${ENCODING}`;
 
 interface WSSettings {
   reconnectInt: number;
@@ -48,7 +49,7 @@ export class WS extends EventEmitter {
 
   async init() {
     return new Promise((resolve) => {
-      this.ws = new Websocket(`${SWARM_URL}?encoding=${ENCODING}`);
+      this.ws = new Websocket(`${SWARM_URL}`);
 
       this.ws.on('open', async () => {
         this.reconnectionCount = 0;
