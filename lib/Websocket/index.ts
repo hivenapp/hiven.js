@@ -5,7 +5,7 @@ import Websocket from 'ws';
 // Static variables
 const ENCODING = 'json';
 const COMPRESSION: 'zlib' | 'text' = 'text';
-const SWARM_URL = `wss://swarm.hiven.io/socket?compression=${COMPRESSION}_json&encoding=${ENCODING}`;
+const SWARM_URL = `${process.env.SWARM_HOST || 'wss://swarm.hiven.io'}/socket?compression=${COMPRESSION}_json&encoding=${ENCODING}`;
 
 interface WSSettings {
   reconnectInt: number;
