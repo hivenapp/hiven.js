@@ -108,4 +108,12 @@ export class House extends BaseCollection {
     const deleteHouse = await rest.delete(`/houses/${this.id}`);
     return deleteHouse;
   }
+  async rename(name: String) {
+    const renamed = await rest.patch(`/houses/${this.id}`, {
+      data: {
+        name
+      }
+    });
+    return renamed;
+  }
 }
