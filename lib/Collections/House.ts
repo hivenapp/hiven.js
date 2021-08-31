@@ -113,7 +113,7 @@ export class House extends BaseCollection {
       data: {
         name
       }
-    })
-    return renamed
+    });
+    return renamed;
   }
 }
