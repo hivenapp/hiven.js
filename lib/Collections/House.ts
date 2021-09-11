@@ -88,13 +88,13 @@ export class House extends BaseCollection {
     if (!useInvite.data) throw 'failed_to_use_invite';
 
     // Fetch the house from the house store by the ID and return that with the callback
-    return await this.collect(getInvite.data.data.house.id, {
-      id: getInvite.data.data.house.id,
-      name: getInvite.data.data.house.name,
-      owner: this.client?.users.resolve(getInvite.data.data.house.owner_id),
-      icon: getInvite.data.data.house.icon,
-      members: getInvite.data.data.house.members,
-      rooms: getInvite.data.data.house.rooms
+    return await this.collect(getInvite.data.house.id, {
+      id: getInvite.data.house.id,
+      name: getInvite.data.house.name,
+      owner: this.client?.users.resolve(getInvite.data.house.owner_id),
+      icon: getInvite.data.house.icon,
+      members: getInvite.data.house.members,
+      rooms: getInvite.data.house.rooms
     });
   }
 
