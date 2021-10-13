@@ -2,7 +2,7 @@
   "name": "hiven",
   "version": "2.0.11",
   "description": "Hiven.js - TS/JS bot library for Hiven",
-  "main": "dist/index.js",
+  "main": "index.js",
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",
