@@ -24,7 +24,7 @@ Installation via NPM
 
 Installation via Yarn
 
-`yarn install hiven`
+`yarn add hiven`
 
 ---
 
